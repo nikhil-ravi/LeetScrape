@@ -2,9 +2,20 @@ import requests
 import pandas as pd
 
 
+## This will need replacing since Leetcode seems to change it everyday (?)
+
+ALL_JSON_URL = (
+    "https://leetcode.com/_next/data/qXCWR3-qAAkAx8vGwcmGo/problemset/all.json?slug=all"
+)
+
+
 class GetQuestionsList:
-    def __init__(self, limit: int = 10000):
+    def __init__(self, limit: int = 10000, all_json_url: str = ALL_JSON_URL):
         self.limit = limit
+        self.all_json_url = all_json_url
+        print(
+            "Note: The default ALL_JSON_URL might be out-of-date. Please update it by going to https://leetcode.com/problemset/all/ and exploring the Networks tab for a query returning all.json."
+        )
 
     def scrape(self):
         self.scrape_companies()
@@ -16,9 +27,7 @@ class GetQuestionsList:
 
     def scrape_categories_and_topicTags_lists(self):
         print("Scraping Categories ... ", end="")
-        data = requests.get(
-            "https://leetcode.com/_next/data/ZLa6ykIj3i3BfoQNxcfl8/problemset/all.json"
-        ).json()
+        data = requests.get(self.all_json_url).json()
         # List of problem categories
         self.categories = pd.json_normalize(
             data["pageProps"]["problemsetCategories"]

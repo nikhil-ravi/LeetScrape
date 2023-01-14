@@ -11,6 +11,7 @@ Import the relevant classes from the [`leetcode`](/src/leetcode/) package:
 ```python
 from leetcode.GetQuestionsList import GetQuestionsList
 from leetcode.GetQuestionInfo import GetQuestionInfo
+from leetcode.utils import combine_list_and_info, get_all_questions_body
 import pandas as pd
 from tqdm import tqdm
 import pickle
@@ -26,19 +27,19 @@ ls.questions["QID"] = ls.questions["QID"].astype(int)
 ls.to_csv(directory_path="../data/") # example directory path
 ```
 
+> **Warning**
+> The default ALL_JSON_URL might be out-of-date. Please update it by going to https://leetcode.com/problemset/all/ and exploring the Networks tab for a query returning all.json.
+
 Query individual question's information such as the body, test cases, constraints, hints, code stubs, and company tags using the [`GetQuestionInfo`](/src/leetcode/GetQuestionInfo.py) class:
 
 ```python
 questions_info = pd.read_csv("../data/questions.csv")
-questions_info_list = []
-for i, (titleSlug, paidOnly) in enumerate(tqdm(questions_info[["titleSlug", "paidOnly"]].values)):
-    if not paidOnly:
-        questions_info_list.append(
-            GetQuestionInfo(titleSlug).scrape()
-        )
-
-with open("../data/questions_info_list.pickle", "wb") as f:
-    pickle.dump(questions_info_list, f)
+questions_info = pd.read_csv("../data/questions.csv")
+questions_info_list = get_all_questions_body(
+    questions_info["titleSlug"].tolist(),
+    questions_info["paidOnly"].tolist(),
+    filename="../data/questionBody.pickle",
+)
 ```
 
 The above code stub is time consuming (10+ minutes) since there are 2500+ questions.
@@ -57,25 +58,7 @@ questions_body["QID"] = questions_body["QID"].astype(int)
 Create a new dataframe with all the questions and their metadata and body information.
 
 ```python
-questions = pd.concat(
-    [
-        ls.questions.set_index("QID"),
-        questions_body.set_index("QID")
-    ],
-    axis=1
-).reset_index()
-questions["Hints"] = questions["Hints"].fillna("").apply(list)
-questions["SimilarQuestions"] = questions["SimilarQuestions"].fillna("").apply(list)
-questions["SimilarQuestions"] = questions["SimilarQuestions"].apply(
-    lambda w: [int(q) for q in w]
-)
-questions["Code"] = questions["Code"].fillna("")
-questions["Body"] = questions["Body"].fillna("")
-questions["Companies"] = (
-    questions["Companies"]
-    .fillna(np.nan)
-    .replace([np.nan], [None])
-)
+questions = combine_list_and_info(info_df = questions_body, list_df=ls.questions)
 ```
 
 Create a PostgreSQL database using the [SQL](/sql/create.sql) dump and insert data using `sqlalchemy`.
