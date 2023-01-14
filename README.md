@@ -28,7 +28,7 @@ ls.to_csv(directory_path="../data/") # example directory path
 ```
 
 > **Warning**
-> The default ALL_JSON_URL might be out-of-date. Please update it by going to https://leetcode.com/problemset/all/ and exploring the Networks tab for a query returning all.json.
+> The default ALL_JSON_URL in the [`GetQuestionsList`](/src/GetQuestionsList) class might be out-of-date. Please update it by going to https://leetcode.com/problemset/all/ and exploring the Networks tab for a query returning all.json.
 
 Query individual question's information such as the body, test cases, constraints, hints, code stubs, and company tags using the [`GetQuestionInfo`](/src/leetcode/GetQuestionInfo.py) class:
 
