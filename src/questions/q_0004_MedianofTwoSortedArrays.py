@@ -45,27 +45,36 @@ class Solution:
     - `-106 <= nums1[i], nums2[i] <= 106`
     """
 
-    def findMedianSortedArrays(self, nums1: list[int], nums2: list[int]) -> float:
+    def findMedianSortedArrays(self, nums1: list[int], nums2: list[int]) -> float:  # type: ignore
         m = len(nums1)
         n = len(nums2)
         pointer1 = 0
         pointer2 = 0
         merged_array = []
-        median_indices = [(m + n) // 2] if (m + n) % 2 == 1 else [(m + n) // 2 - 1, (m + n) // 2]
+        median_indices = (
+            [(m + n) // 2] if (m + n) % 2 == 1 else [(m + n) // 2 - 1, (m + n) // 2]
+        )
         while len(nums1) > 0 or len(nums2) > 0:
-            if (len(nums1) > 0 and len(nums2) > 0 and nums1[0] < nums2[0]) or len(nums2) == 0:
+            if (len(nums1) > 0 and len(nums2) > 0 and nums1[0] < nums2[0]) or len(
+                nums2
+            ) == 0:
                 merged_array.append(nums1.pop(0))
                 pointer1 += 1
-            elif (len(nums1) > 0 and len(nums2) > 0 and nums1[0] >= nums2[0]) or len(nums1) == 0:
+            elif (len(nums1) > 0 and len(nums2) > 0 and nums1[0] >= nums2[0]) or len(
+                nums1
+            ) == 0:
                 merged_array.append(nums2.pop(0))
                 pointer2 += 1
             if len(merged_array) == median_indices[-1] + 1:
                 if (m + n) % 2 == 1:
                     return merged_array[median_indices[0]]
                 else:
-                    return (merged_array[median_indices[0]] + merged_array[median_indices[1]]) / 2
+                    return (
+                        merged_array[median_indices[0]]
+                        + merged_array[median_indices[1]]
+                    ) / 2
 
-    def findMedianSortedArrays_binary_search(self, nums1: list[int], nums2: list[int]) -> float:
+    def findMedianSortedArrays_binary_search(self, nums1: list[int], nums2: list[int]) -> float:  # type: ignore
         m = len(nums1)
         n = len(nums2)
         if m > n:
