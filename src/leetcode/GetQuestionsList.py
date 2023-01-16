@@ -45,7 +45,19 @@ class GetQuestionsList:
         categories_data = []
         for category in self.categories["slug"].values:
             data = {
-                "query": "\n    query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {\n  problemsetQuestionList: questionList(\n    categorySlug: $categorySlug\n    limit: $limit\n    skip: $skip\n    filters: $filters\n  ) {\n    questions: data {\n      QID: questionFrontendId\n    }\n  }\n}\n    ",
+                "query": """query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
+                        problemsetQuestionList: questionList(
+                            categorySlug: $categorySlug
+                            limit: $limit
+                            skip: $skip
+                            filters: $filters
+                        ) {
+                            questions: data {
+                                QID: questionFrontendId
+                            }
+                        }
+                    }
+                """,
                 "variables": {
                     "categorySlug": category,
                     "skip": 0,
@@ -66,7 +78,28 @@ class GetQuestionsList:
     def scrape_questions_list(self):
         print("Scraping questions list ... ", end="")
         data = {
-            "query": "\n    query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {\n  problemsetQuestionList: questionList(\n    categorySlug: $categorySlug\n    limit: $limit\n    skip: $skip\n    filters: $filters\n  ) {\n    total: totalNum\n    questions: data {\n      acceptanceRate: acRate\n      difficulty\n     QID: questionFrontendId\n      paidOnly: isPaidOnly\n      title\n      titleSlug\n    topicTags {\n        slug\n      }\n    }\n  }\n}\n    ",
+            "query": """query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
+                    problemsetQuestionList: questionList(
+                        categorySlug: $categorySlug
+                        limit: $limit
+                        skip: $skip
+                        filters: $filters
+                    ) {
+                        total: totalNum
+                        questions: data {
+                            acceptanceRate: acRate
+                            difficulty
+                            QID: questionFrontendId
+                            paidOnly: isPaidOnly
+                            title
+                            titleSlug
+                            topicTags {
+                                slug
+                            }
+                        }
+                    }
+                }
+            """,
             "variables": {
                 "categorySlug": "",
                 "skip": 0,
@@ -106,7 +139,14 @@ class GetQuestionsList:
     def scrape_companies(self):
         print("Scraping companies ... ", end="")
         data = {
-            "query": "\n    query questionCompanyTags {\n  companyTags {\n    name\n    slug\n    questionCount\n  }\n}\n    ",
+            "query": """query questionCompanyTags {
+                    companyTags {
+                        name
+                        slug
+                        questionCount
+                    }
+                }
+            """,
             "variables": {},
         }
         r = requests.post("https://leetcode.com/graphql", json=data).json()

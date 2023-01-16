@@ -4,8 +4,6 @@ This package may be used to get the list of Leetcode questions and their topic a
 
 ## Usage
 
----
-
 Import the relevant classes from the [`leetcode`](/src/leetcode/) package:
 
 ```python
@@ -34,7 +32,6 @@ Query individual question's information such as the body, test cases, constraint
 
 ```python
 questions_info = pd.read_csv("../data/questions.csv")
-questions_info = pd.read_csv("../data/questions.csv")
 questions_info_list = get_all_questions_body(
     questions_info["titleSlug"].tolist(),
     questions_info["paidOnly"].tolist(),
@@ -45,10 +42,6 @@ questions_info_list = get_all_questions_body(
 The above code stub is time consuming (10+ minutes) since there are 2500+ questions.
 
 ```python
-# with open(
-#     "../data/questionBody.pickle", "rb"
-# ) as f:
-    # questions_info_list = pickle.load(f)
 questions_body = pd.DataFrame(
     questions_info_list
 ).drop(columns=["titleSlug"])
