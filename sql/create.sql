@@ -1,3 +1,5 @@
+-- Table: public.questions
+
 DROP TABLE IF EXISTS public.questions CASCADE;
 
 CREATE TABLE IF NOT EXISTS public.questions
@@ -23,17 +25,24 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS public.questions
     OWNER to postgres;
 
+ALTER TABLE questions DROP IF EXISTS solutions;
+ALTER TABLE questions ADD solutions text[] NOT NULL DEFAULT array[]::varchar[];
 
 ALTER TABLE questions DROP IF EXISTS search;
 ALTER TABLE questions 
 ADD search tsvector
 GENERATED ALWAYS AS (
+	setweight(to_tsvector('english', "QID"), 'A') || ' ' ||
 	setweight(to_tsvector('simple', "titleSlug"), 'A') || ' ' ||
 	setweight(to_tsvector('simple', COALESCE("categorySlug", '')), 'A') || ' ' ||
 	setweight(to_tsvector('simple', "topicTags"), 'A') || ' ' ||
 	setweight(to_tsvector('english', "difficulty"), 'B') || ' ' ||
-	setweight(to_tsvector('english', "Body"), 'B') :: tsvector
+	setweight(to_tsvector('english', array_to_string("Hints", ';' )), 'B') || ' ' ||
+	setweight(to_tsvector('english', "Body"), 'B') || ' ' ||
+	setweight(to_tsvector('english', array_to_string("solutions", ';' )), 'C')  :: tsvector
 ) stored;
+
+-- Index: questions_idx
 
 DROP INDEX IF EXISTS public.questions_idx;
 
@@ -43,11 +52,16 @@ CREATE UNIQUE INDEX IF NOT EXISTS questions_idx
     INCLUDE("QID", title, "titleSlug", difficulty)
     TABLESPACE pg_default;
 
+
+-- Index: search_idx
+
 DROP INDEX IF EXISTS public.search_idx;
 
 CREATE INDEX IF NOT EXISTS search_idx 
     ON questions USING GIN
     (search);
+
+-- Table: public.topic_tags
 
 DROP TABLE IF EXISTS public.topic_tags CASCADE;
 
@@ -63,6 +77,9 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS public.topic_tags
     OWNER to postgres;
 
+    
+-- Table: public.categories
+
 DROP TABLE IF EXISTS public.categories CASCADE;
 
 CREATE TABLE IF NOT EXISTS public.categories
@@ -76,6 +93,7 @@ TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.categories
     OWNER to postgres;
+-- Index: category_slug_idx
 
 DROP INDEX IF EXISTS public.category_slug_idx;
 
@@ -84,6 +102,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS category_slug_idx
     (slug COLLATE pg_catalog."default" ASC NULLS LAST)
     INCLUDE(name)
     TABLESPACE pg_default;
+
+
+-- Table: public.companies
 
 DROP TABLE IF EXISTS public.companies;
 
@@ -99,6 +120,7 @@ TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.companies
     OWNER to postgres;
+-- Index: company_slug_idx
 
 DROP INDEX IF EXISTS public.company_slug_idx;
 
@@ -107,6 +129,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS company_slug_idx
     (slug COLLATE pg_catalog."default" ASC NULLS LAST)
     INCLUDE(name, "questionCount")
     TABLESPACE pg_default;
+
+-- Table: public.question_category
 
 DROP TABLE IF EXISTS public.question_category;
 
@@ -132,6 +156,7 @@ TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.question_category
     OWNER to postgres;
+-- Index: question_category_idx
 
 DROP INDEX IF EXISTS public.question_category_idx;
 
@@ -140,6 +165,8 @@ CREATE INDEX IF NOT EXISTS question_category_idx
     ("categorySlug" COLLATE pg_catalog."default" ASC NULLS LAST)
     INCLUDE("QID")
     TABLESPACE pg_default;
+
+-- Table: public.question_topics
 
 DROP TABLE IF EXISTS public.question_topics;
 
@@ -163,6 +190,7 @@ TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.question_topics
     OWNER to postgres;
+-- Index: question_topics_idx
 
 DROP INDEX IF EXISTS public.question_topics_idx;
 
@@ -171,6 +199,8 @@ CREATE INDEX IF NOT EXISTS question_topics_idx
     ("tagSlug" COLLATE pg_catalog."default" ASC NULLS LAST)
     INCLUDE("QID", "tagSlug")
     TABLESPACE pg_default;
+
+-- Function: search_questions
 
 CREATE OR REPLACE FUNCTION search_questions(term text)
 RETURNS TABLE(
@@ -192,6 +222,7 @@ or search @@ websearch_to_tsquery('simple', term || ':*')
 order by rank desc;
 
 $$ language SQL;
+
 
 
 CREATE OR REPLACE FUNCTION queried_questions_list(term text)
@@ -218,5 +249,22 @@ select array_to_json(array_agg(row_to_json(out))) from (
     join question_topics on questions."QID" = question_topics."QID"
     join topic_tags on topic_tags.slug = question_topics."tagSlug"
     group by 1, 2, 3
+) as out
+$$ language SQL;
+
+CREATE OR REPLACE FUNCTION get_similar_questions(qid integer)
+RETURNS json
+as
+$$
+select array_to_json(array_agg(row_to_json(out))) from (
+    with base as (
+        select unnest("SimilarQuestions") as "QID" from questions
+        where "QID"=qid
+    )
+
+    select questions."QID", questions."title", questions."difficulty" from base
+    join questions 
+    on questions."QID" = base."QID"
+    order by 1 asc
 ) as out
 $$ language SQL;
