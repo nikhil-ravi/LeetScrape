@@ -19,10 +19,8 @@ import numpy as np
 Get the list of questions, companies, topic tags, categories using the [`GetQuestionsList`](/src/leetcode/GetQuestionsList.py) class:
 
 ```python
-ls = GetQuestionsList()
-ls.scrape()
-ls.questions["QID"] = ls.questions["QID"].astype(int)
-ls.to_csv(directory_path="../data/") # example directory path
+ls = GetQuestionsList().scrape() # Scrape the list of questions
+ls.to_csv(directory_path="../data/") # Save the scraped tables to a directory
 ```
 
 > **Warning**
@@ -31,22 +29,25 @@ ls.to_csv(directory_path="../data/") # example directory path
 Query individual question's information such as the body, test cases, constraints, hints, code stubs, and company tags using the [`GetQuestionInfo`](/src/leetcode/GetQuestionInfo.py) class:
 
 ```python
+# This table can be generated using the previous commnd
 questions_info = pd.read_csv("../data/questions.csv")
-questions_info_list = get_all_questions_body(
+
+# Scrape question body
+questions_body_list = get_all_questions_body(
     questions_info["titleSlug"].tolist(),
     questions_info["paidOnly"].tolist(),
     filename="../data/questionBody.pickle",
 )
-```
 
-The above code stub is time consuming (10+ minutes) since there are 2500+ questions.
-
-```python
+# Save to a pandas dataframe
 questions_body = pd.DataFrame(
-    questions_info_list
+    questions_body_list
 ).drop(columns=["titleSlug"])
 questions_body["QID"] = questions_body["QID"].astype(int)
 ```
+
+> **Note**
+> The above code stub is time consuming (10+ minutes) since there are 2500+ questions.
 
 Create a new dataframe with all the questions and their metadata and body information.
 
@@ -90,14 +91,33 @@ ls.questionCategory.to_sql(
 )
 ```
 
-Using the `queried_questions_list` PostgreSQL function (defined in the SQL dump) to query for questions containy query terms:
+Use the `queried_questions_list` PostgreSQL function (defined in the SQL dump) to query for questions containy query terms:
 
 ```sql
 select * from queried_questions_list('<query term>');
 ```
 
-Using the `all_questions_list` PostgreSQL function (defined in the SQL dump) to query for all the questions in the database:
+Use the `all_questions_list` PostgreSQL function (defined in the SQL dump) to query for all the questions in the database:
 
 ```sql
 select * from all_questions_list();
+```
+
+Use the `get_similar_questions` PostgreSQL function (defined in the SQL dump) to query for all questions similar to a given question:
+
+```sql
+select * from get_similar_questions(<QuestionID>);
+```
+
+Use the [`extract_solutions`](/src/leetcode/utils.py:) method to extract solution code stubs from your python script. Note that the solution method should be a part of a class named `Solution` (see [here](/example/solutions/q_0001_TwoSum.py) for an example):
+
+```python
+# Returns a dict of the form {QuestionID: solutions}
+solutions = extract_solutions(filename=<path_to_python_script>)
+```
+
+Use the [`upload_solutions`](/src/leetcode/utils.py:) method to upload the extracted solution code stubs from your python script to the PosgreSQL database.
+
+```python
+upload_solutions(engine=<sqlalchemy_engine>, row_id = <row_id_in_table>, solutions: <solutions_dict>)
 ```
