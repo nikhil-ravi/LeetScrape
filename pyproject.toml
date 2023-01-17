@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "leetcode"
+version = "0.1.0"
+description = "This package may be used to get the list of Leetcode questions and their topic and company tags, difficulty, question body (including test cases, constraints, hints), and code stubs in any of the available programming languages."
+authors = ["Nikhil Ravi <nravi6@asu.edu>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+requests = "^2.28.2"
+pandas = "^1.5.2"
+numpy = "^1.24.1"
+SQLAlchemy = "^1.4.46"
+tqdm = "^4.64.1"
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.20.2"
+python-dotenv = "^0.21.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
