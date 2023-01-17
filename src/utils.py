@@ -8,7 +8,7 @@ import sqlalchemy
 from sqlalchemy import MetaData, update
 from tqdm import tqdm
 
-from leetcode.GetQuestionInfo import GetQuestionInfo  # TODO: Change to relative import
+from GetQuestionInfo import GetQuestionInfo
 
 
 def combine_list_and_info(list_df: pd.DataFrame, info_df: pd.DataFrame) -> pd.DataFrame:
