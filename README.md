@@ -1,5 +1,7 @@
 # Leetcode Questions Scraper
 
+[![Python application](https://github.com/nikhil-ravi/LeetcodeScraper/actions/workflows/python-app.yml/badge.svg)](https://github.com/nikhil-ravi/LeetcodeScraper/actions/workflows/python-app.yml)
+
 This package may be used to get the list of Leetcode questions and their topic and company tags, difficulty, question body (including test cases, constraints, hints), and code stubs in any of the available programming languages.
 
 ## Usage
