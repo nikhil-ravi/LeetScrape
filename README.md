@@ -9,19 +9,16 @@ This package may be used to get the list of Leetcode questions and their topic a
 Import the relevant classes from the [`leetcode`](/src/leetcode/) package:
 
 ```python
-from leetcode.GetQuestionsList import GetQuestionsList
-from leetcode.GetQuestionInfo import GetQuestionInfo
-from leetcode.utils import combine_list_and_info, get_all_questions_body
-import pandas as pd
-from tqdm import tqdm
-import pickle
-import numpy as np
+from leetscrape.GetQuestionsList import GetQuestionsList
+from leetscrape.GetQuestionInfo import GetQuestionInfo
+from leetscrape.utils import combine_list_and_info, get_all_questions_body
 ```
 
 Get the list of questions, companies, topic tags, categories using the [`GetQuestionsList`](/src/leetcode/GetQuestionsList.py) class:
 
 ```python
-ls = GetQuestionsList().scrape() # Scrape the list of questions
+ls = GetQuestionsList()
+ls.scrape() # Scrape the list of questions
 ls.to_csv(directory_path="../data/") # Save the scraped tables to a directory
 ```
 
@@ -38,7 +35,7 @@ questions_info = pd.read_csv("../data/questions.csv")
 questions_body_list = get_all_questions_body(
     questions_info["titleSlug"].tolist(),
     questions_info["paidOnly"].tolist(),
-    filename="../data/questionBody.pickle",
+    save_to="../data/questionBody.pickle",
 )
 
 # Save to a pandas dataframe
@@ -54,7 +51,9 @@ questions_body["QID"] = questions_body["QID"].astype(int)
 Create a new dataframe with all the questions and their metadata and body information.
 
 ```python
-questions = combine_list_and_info(info_df = questions_body, list_df=ls.questions)
+questions = combine_list_and_info(
+    info_df = questions_body, list_df=ls.questions, save_to="../data/all.json"
+)
 ```
 
 Create a PostgreSQL database using the [SQL](/example/sql/create.sql) dump and insert data using `sqlalchemy`.
@@ -62,35 +61,11 @@ Create a PostgreSQL database using the [SQL](/example/sql/create.sql) dump and i
 ```python
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from dotenv import dotenv_values
 
-config = dotenv_values("../.env")
-engine = create_engine(
-    f"postgresql://{config['SUPABASE_USERNAME']}:{config['SUPABASE_PASSWORD']}@{config['SUPABASE_HOSTNAME']}:{config['SUPABASE_PORT']}/{config['SUPABASE_DBNAME']}",
-    echo=True,
-)
-questions.to_sql(
-    con=engine, name="questions", if_exists="append", index=False
-)
-ls.topicTags.to_sql(
-    con=engine, name="topic_tags", if_exists="append", index=False
-)
-ls.categories.to_sql(
-    con=engine, name="categories", if_exists="append", index=False
-)
-ls.companies.to_sql(
-    con=engine, name="companies", if_exists="append", index=False
-)
-ls.questionTopics.to_sql(
-    con=engine, name="question_topics", if_exists="append", index=True, index_label="id"
-)
-ls.questionCategory.to_sql(
-    con=engine,
-    name="question_category",
-    if_exists="append",
-    index=True,
-    index_label="id",
-)
+engine = create_engine("<database_connection_string>", echo=True)
+questions.to_sql(con=engine, name="questions", if_exists="append", index=False)
+# Repeat the same for tables ls.topicTags, ls.categories,
+# ls.companies, # ls.questionTopics, and ls.questionCategory
 ```
 
 Use the `queried_questions_list` PostgreSQL function (defined in the SQL dump) to query for questions containy query terms:

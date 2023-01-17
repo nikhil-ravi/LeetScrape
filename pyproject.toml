@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "leetscraper"
+name = "leetscrape"
 version = "0.1.0"
 description = "This package may be used to get the list of Leetcode questions and their topic and company tags, difficulty, question body (including test cases, constraints, hints), and code stubs in any of the available programming languages."
 authors = ["Nikhil Ravi <nr337@cornell.edu>"]
@@ -13,7 +13,7 @@ pandas = "^1.5.2"
 numpy = "^1.24.1"
 SQLAlchemy = "^1.4.46"
 tqdm = "^4.64.1"
-
+psycopg2 = "^2.9.5"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.20.2"

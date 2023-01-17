@@ -166,3 +166,4 @@ cython_debug/
 
 
 */sql/insert.sql
+example/data_test/
