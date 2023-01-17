@@ -1,5 +1,6 @@
 .vscode/
 *.ipynb
+!example/notebooks/package_usage.ipynb
 __pycache__
 
 # Byte-compiled / optimized / DLL files
