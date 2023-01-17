@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "leetscrape"
-version = "0.1.0"
-description = "This package may be used to get the list of Leetcode questions and their topic and company tags, difficulty, question body (including test cases, constraints, hints), and code stubs in any of the available programming languages."
+version = "0.1.2"
+description = "Introducing LeetScrape - a powerful and efficient Python package designed to scrape problem statements and their topic and company tags, difficulty, test cases, hints, and code stubs from LeetCode.com. Easily download and save LeetCode problems to your local machine, making it convenient for offline practice and studying. It is perfect for anyone preparing for coding interviews. With the LeetScrape, you can boost your coding skills and improve your chances of landing your dream job."
 authors = ["Nikhil Ravi <nr337@cornell.edu>"]
 license = "MIT"
 readme = "README.md"
