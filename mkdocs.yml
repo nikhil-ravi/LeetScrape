@@ -8,9 +8,14 @@ plugins:
       handlers:
         python:
           paths: [src]
+  - git-revision-date-localized:
+      enable_creation_date: true
 theme:
   name: material
   highlightjs: true
+  features:
+    - content.action.edit
+    - content.action.view
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
@@ -51,3 +56,5 @@ extra:
   analytics:
     provider: google
     property: G-LL26YLB3M5
+
+repo_url: https://github.com/nikhil-ravi/LeetScrape

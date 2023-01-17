@@ -26,6 +26,7 @@ pytest = "^7.2.1"
 mkdocstrings = {extras = ["python"], version = "^0.19.1"}
 mkdocs = "^1.4.2"
 mkdocs-material = "^9.0.5"
+mkdocs-git-revision-date-localized-plugin = "^1.1.0"
 
 [build-system]
 requires = ["poetry-core"]
