@@ -55,7 +55,7 @@ Create a new dataframe with all the questions and their metadata and body inform
 questions = combine_list_and_info(info_df = questions_body, list_df=ls.questions)
 ```
 
-Create a PostgreSQL database using the [SQL](/sql/create.sql) dump and insert data using `sqlalchemy`.
+Create a PostgreSQL database using the [SQL](/example/sql/create.sql) dump and insert data using `sqlalchemy`.
 
 ```python
 from sqlalchemy import create_engine

@@ -164,4 +164,4 @@ cython_debug/
 #.idea/
 
 
-sql/insert.sql
+*/sql/insert.sql
