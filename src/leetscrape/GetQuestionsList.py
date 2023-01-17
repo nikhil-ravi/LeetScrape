@@ -2,30 +2,31 @@ import requests
 import pandas as pd
 from ._constants import CATEGORIES, TOPIC_TAGS
 
-## This will need replacing since Leetcode seems to change it everyday (?)
-
-ALL_JSON_URL = (
-    "https://leetcode.com/_next/data/qXCWR3-qAAkAx8vGwcmGo/problemset/all.json?slug=all"
-)
-
 
 class GetQuestionsList:
-    def __init__(self, limit: int = 10000, all_json_url: str = ALL_JSON_URL):
+    """A class to scrape the list of questions, their topic tags, and company tags.
+
+    Args:
+        limit (int, optional): The maximum number of questions to query for from Leetcode's graphql API. Defaults to 10,000.
+    """
+
+    def __init__(self, limit: int = 10_000):
         self.limit = limit
-        self.all_json_url = all_json_url
-        print(
-            "Note: The default ALL_JSON_URL might be out-of-date. Please update it by going to https://leetcode.com/problemset/all/ and exploring the Networks tab for a query returning all.json."
-        )
 
     def scrape(self):
-        self.scrape_companies()
-        self.scrape_questions_list()
-        self.extract_question_topics()
-        self.get_categories_and_topicTags_lists()
-        self.scrape_question_category()
-        self.add_category_to_questions_list()
+        """Scrapes LeetCode data including company tags, questions, question topics,
+        and categories.
+        """
+        self._scrape_companies()
+        self._scrape_questions_list()
+        self._extract_question_topics()
+        self._get_categories_and_topicTags_lists()
+        self._scrape_question_category()
+        self._add_category_to_questions_list()
 
-    def get_categories_and_topicTags_lists(self):
+    def _get_categories_and_topicTags_lists(self):
+        """Get the categories and topic tags of LeetCode problems and store them in the
+        'categories' and 'topicTags' attribute respectively."""
         print("Getting Categories ... ", end="")
         # List of problem categories
         self.categories = pd.DataFrame.from_records(CATEGORIES)
@@ -35,7 +36,8 @@ class GetQuestionsList:
         self.topicTags = pd.DataFrame.from_records(TOPIC_TAGS)
         print("Done")
 
-    def scrape_question_category(self):
+    def _scrape_question_category(self):
+        """Scrape the category of each question and store it in the 'questionCategory' dataframe."""
         print("Extracting question category ... ", end="")
         categories_data = []
         for category in self.categories["slug"].values:
@@ -70,7 +72,13 @@ class GetQuestionsList:
         self.questionCategory = pd.concat(categories_data, axis=0, ignore_index=True)
         print("Done")
 
-    def scrape_questions_list(self):
+    def _scrape_questions_list(self):
+        """
+        Scrapes the list of questions from leetcode.com and store them in the 'questions'
+        dataframe. The columns include the question QID, acceptance rate, difficulty,
+        title, titleSlug, and topic tags. It also has a column indicating
+        whether the question is available only to Leetcode's paying customers.
+        """
         print("Scraping questions list ... ", end="")
         data = {
             "query": """query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
@@ -122,7 +130,8 @@ class GetQuestionsList:
         )
         print("Done")
 
-    def extract_question_topics(self):
+    def _extract_question_topics(self):
+        """Create a table with the edge list of questions and topic tags."""
         print("Extracting question topics ... ", end="")
         self.questionTopics = (
             self.questions[["QID", "topicTags"]]
@@ -131,7 +140,9 @@ class GetQuestionsList:
         ).dropna()
         print("Done")
 
-    def scrape_companies(self):
+    def _scrape_companies(self):
+        """Scrape the company tags of each question. This always returns an empty
+        dataframe as this is a paid only feature."""
         print("Scraping companies ... ", end="")
         data = {
             "query": """query questionCompanyTags {
@@ -148,7 +159,10 @@ class GetQuestionsList:
         self.companies = pd.json_normalize(r["data"]["companyTags"])
         print("Done")
 
-    def add_category_to_questions_list(self):
+    def _add_category_to_questions_list(self):
+        """Adds the `topicTags` column containing the comma-separated string of
+        the list of topic tags relevant to the given questions and the `category`
+        column that includes the category relevant to the given question"""
         self.questions["topicTags"] = self.questions["topicTags"].apply(
             lambda w: ",".join(w)
         )
@@ -156,7 +170,13 @@ class GetQuestionsList:
             self.questionCategory.set_index("QID"), on="QID"
         )
 
-    def to_csv(self, directory_path: str):
+    def to_csv(self, directory_path: str) -> None:
+        """A method to export the scraped data into csv files in preparation for
+        injection into a database.
+
+        Args:
+            directory_path (str): The directory path to export the scraped data into.
+        """
         self.companies.to_csv(directory_path + "companies.csv", index=False)
         self.questions["QID"] = self.questions["QID"].astype(int)
         self.questions.to_csv(directory_path + "questions.csv", index=False)

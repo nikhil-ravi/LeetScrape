@@ -1,3 +1,4 @@
+# List of problem categories
 CATEGORIES = [
     {"slug": "algorithms", "name": "Algorithms"},
     {"slug": "database", "name": "Database"},
@@ -5,6 +6,7 @@ CATEGORIES = [
     {"slug": "concurrency", "name": "Concurrency"},
 ]
 
+# List of topic tags
 TOPIC_TAGS = [
     {"slug": "array", "name": "Array"},
     {"slug": "string", "name": "String"},
