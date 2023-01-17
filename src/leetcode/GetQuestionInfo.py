@@ -6,7 +6,7 @@ import time
 BASE_URL = "https://leetcode.com/graphql"
 
 class GetQuestionInfo:
-    def __init__(self, titleSlug: str, questions_info_path: str = "../data/questions.csv"):
+    def __init__(self, titleSlug: str, questions_info_path: str = "../example/data/questions.csv"):
         self.titleSlug = titleSlug        
         self.questions_info = pd.read_csv(questions_info_path, usecols=["QID", "titleSlug"], index_col="titleSlug")
 
