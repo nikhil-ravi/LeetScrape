@@ -26,14 +26,14 @@ parser.add_argument(
     metavar="sqlAlchemy database string",
     type=str,
     help="Enter sqlAlchemy database string",
-    required=True,
+    required=False,
 )
 parser.add_argument(
     "--solution_file",
     metavar="Solution File",
     type=str,
     help="Enter the path to the solution file",
-    required=True,
+    required=False,
 )
 
 
@@ -50,8 +50,8 @@ def leetscrape_question():
 
 def leetupload_solution():
     args = parser.parse_args()
-    if not args.qid or not args.solution_file:
-        parser.error("QID and Solution file need to be passed.")
+    if not args.qid or not args.solution_file or not args.database_string:
+        parser.error("QID, Database String, and Solution file need to be passed.")
     engine = create_engine(args.database_string, echo=False)
     solutions = extract_solutions(args.solution_file)
     upload_solutions(engine, args.qid, solutions[args.qid])

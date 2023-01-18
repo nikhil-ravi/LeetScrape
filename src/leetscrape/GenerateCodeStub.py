@@ -84,7 +84,7 @@ class GenerateCodeStub:
             str: The python code stub.
         """
         code_stub = self.data["Code"]
-        return self._clean_type_hints(code_stub)  # type: ignore
+        return code_stub  # self._clean_type_hints(code_stub)  # type: ignore
 
     def _clean_type_hints(self, code_stub: str) -> str:
         """Cleaning type hints to adhere to Python 3.10.
@@ -163,12 +163,13 @@ class GenerateCodeStub:
         """
         parameters = []
         for test in code_blocks:
-            for line in test.split("\n"):
-                if line.startswith("Input:"):
-                    inp = line.split("Input:")[1]
-            parameter_dict = parse_args(inp)  # type: ignore
-            parameter_dict["output"] = re.search("Output: (.*)\n", test).group(1)  # type: ignore
-            parameters.append(parameter_dict)
+            if "Input" in test:
+                for line in test.split("\n"):
+                    if line.startswith("Input:"):
+                        inp = line.split("Input:")[1]
+                parameter_dict = parse_args(inp)  # type: ignore
+                parameter_dict["output"] = re.search("Output: (.*)\n", test).group(1)  # type: ignore
+                parameters.append(parameter_dict)
         output_string = ", ".join(list(parameters[0].keys()))
         input_string = ", ".join(
             f"({', '.join([f'{el}' for el in list(parameter.values())])})"
