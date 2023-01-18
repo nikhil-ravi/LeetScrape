@@ -1,13 +1,9 @@
-import ast
 import pickle
 import re
 
 import numpy as np
 import pandas as pd
-import sqlalchemy
-from sqlalchemy import MetaData, update
 from tqdm import tqdm
-
 from .GetQuestionInfo import GetQuestionInfo
 
 """A set of helper functions to transform and query the scraped data."""
@@ -73,77 +69,6 @@ def get_all_questions_body(
     with open(save_to, "wb") as f:
         pickle.dump(questions_info_list, f)
     return questions_info_list
-
-
-def extract_solutions(filename: str) -> dict:
-    """
-    Extract solutions from a given python file.
-
-    Args:
-        filename (str): The path of the file to extract solutions from. It should be of the following form `q_{{LEETCODE_QID}}_{{LEETCODE_TITLE}}.py`. Furthermore, the python script file should have the solution method in a class named `Solution`.
-
-    Raises:
-        ValueError: When the filename does not follow the required convention of `q_{{LEETCODE_QID}}_ {{LEETCODE_TITLE}}.py`.
-        ValueError: When the provided python file does not have a class named Solution.
-
-    Returns:
-        dict: A dictionary containing the question id and a list of solutions, each solution contains an id, code [and docs].
-    """
-    qid = re.search("q_(.*)_", filename)
-    if qid is not None:
-        qid = int(qid.group(1))
-    else:
-        raise ValueError(
-            f"""Invalid filename. Filename should be of the form `q_{{LEETCODE_QID}}_{{LEETCODE_TITLE}}.py`. Received `{filename}` instead."""
-        )
-    with open(filename) as fd:
-        file_contents = fd.read()
-    module = ast.parse(file_contents)
-    class_definition = [
-        node
-        for node in module.body
-        if isinstance(node, ast.ClassDef) and node.name == "Solution"
-    ]
-    if not class_definition:
-        raise ValueError("The provided python file should have a class named Solution.")
-    method_definitions = [
-        node for node in class_definition[0].body if isinstance(node, ast.FunctionDef)
-    ]
-
-    solutions = [
-        {
-            "id": idx,
-            "code": ast.get_source_segment(file_contents, f, padded=True),
-            "docs": ast.get_docstring(f, clean=True),
-        }
-        for idx, f in enumerate(method_definitions)
-    ]
-
-    return {qid: solutions}
-
-
-def upload_solutions(
-    engine: sqlalchemy.engine.Engine,
-    row_id: int,
-    solutions: dict,
-    table_name: str = "questions",
-    col_name: str = "solutions",
-) -> None:
-    """Upload solutions to the corresponding row of a table in a database.
-
-    Args:
-        engine (sqlalchemy.engine.Engine): The sqlalchemy engine used to connect to the database.
-        row_id (int): The id of the row that the solutions should be uploaded to.
-        solutions (dict): The solutions to be uploaded.
-        table_name (str): The name of the table to upload the solutions to. Defaults to "questions".
-        col_name (str): The name of the column to upload the solutions to. Defaults to "solutions".
-    """
-    varss = MetaData(bind=engine)
-    MetaData.reflect(varss)
-    questions = varss.tables[table_name]
-    engine.execute(
-        update(questions).where(questions.c.QID == row_id).values({col_name: solutions})
-    )
 
 
 def camel_case(s):

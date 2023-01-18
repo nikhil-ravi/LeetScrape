@@ -21,7 +21,7 @@ poetry add leetscrape
 ## Usage
 
 ### Command Line
-After installing the package, run the following command to get a code stub and a pytest test file for a given Leetcode question:
+Run the `leetscrape` command to get a code stub and a pytest test file for a given Leetcode question:
 ```bash
 $ leetscrape --titleSlug two-sum --qid 1
 ```
@@ -111,15 +111,19 @@ Use the [`get_similar_questions`](https://github.com/nikhil-ravi/LeetScrape/blob
 select * from get_similar_questions(<QuestionID>);
 ```
 
-Use the [`extract_solutions`](/utils/#leetscrape.utils.extract_solutions) method to extract solution code stubs from your python script. Note that the solution method should be a part of a class named `Solution` (see [here](https://github.com/nikhil-ravi/LeetScrape/blob/dcabdd8bd11b03aac0b725c0adc4881b9be9a48f/example/solutions/q_0001_TwoSum.py) for an example):
 
+### Extract solutions from a `.py` file
+
+You may want to extract solutions from a `.py` files to upload them to a database. You can do so using the [`ExtractSolutions`](/src/leetscrape/ExtractSolutions.py) class.
 ```python
+from leetscrape.ExtractSolutions import extract
 # Returns a dict of the form {QuestionID: solutions}
-solutions = extract_solutions(filename=<path_to_python_script>)
+solutions = extract(filename=<path_to_python_script>)
 ```
 
 Use the [`upload_solutions`](/utils/#leetscrape.utils.upload_solutions) method to upload the extracted solution code stubs from your python script to the PosgreSQL database.
 
 ```python
+from leetscrape.ExtractSolutions import upload_solutions
 upload_solutions(engine=<sqlalchemy_engine>, row_id = <row_id_in_table>, solutions: <solutions_dict>)
 ```

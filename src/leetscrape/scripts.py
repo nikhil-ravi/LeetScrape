@@ -1,7 +1,7 @@
 from .GenerateCodeStub import GenerateCodeStub
 import argparse
 from sqlalchemy import create_engine
-from .utils import extract_solutions, upload_solutions
+from .ExtractSolutions import extract, upload_solutions
 
 parser = argparse.ArgumentParser(
     description="Run this script to generate a code stub for the given question"
@@ -53,5 +53,5 @@ def leetupload_solution():
     if not args.qid or not args.solution_file or not args.database_string:
         parser.error("QID, Database String, and Solution file need to be passed.")
     engine = create_engine(args.database_string, echo=False)
-    solutions = extract_solutions(args.solution_file)
-    upload_solutions(engine, args.qid, solutions[args.qid])
+    solutions = extract(args.solution_file)
+    upload_solutions(engine, args.qid, solutions)
