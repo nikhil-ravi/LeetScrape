@@ -1,5 +1,5 @@
 import pytest
-from src.solutionFileHere import Solution
+from .q_0001_TwoSum import Solution
 
 
 @pytest.mark.parametrize(
