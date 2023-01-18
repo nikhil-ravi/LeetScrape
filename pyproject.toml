@@ -17,14 +17,14 @@ SQLAlchemy = "^1.4.46"
 tqdm = "^4.64.1"
 psycopg2 = "^2.9.5"
 pypandoc = {version = "^1.10", optional = true}
-pytest-codeblocks = {version = "^0.16.1", optional = true}
+marko = {version = "^1.2.2", optional = true}
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.20.2"
 python-dotenv = "^0.21.0"
 black = "^22.12.0"
 pytest = "^7.2.1"
-marko = "^1.2.2"
+flake8 = "^6.0.0"
 
 
 [tool.poetry.group.docs.dependencies]
@@ -41,7 +41,7 @@ build-backend = "poetry.core.masonry.api"
 pythonpath = "src"
 
 [tool.poetry.extras]
-file = ["pypandoc", "pytest-codeblocks"]
+file = ["pypandoc", "marko"]
 
 [tool.poetry.scripts]
 leetscrape = "leetscrape.scripts:leetscrape_question"

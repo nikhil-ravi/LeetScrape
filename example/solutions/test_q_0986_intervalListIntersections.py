@@ -16,8 +16,8 @@ from q_0986_intervalListIntersections import Solution
 class TestSolution:
     def test_intervalIntersection(
         self,
-        firstlist: list[list[int]],
-        secondlist: list[list[int]],
+        firstList: list[list[int]],
+        secondList: list[list[int]],
         output: list[list[int]],
     ):
         sc = Solution()
