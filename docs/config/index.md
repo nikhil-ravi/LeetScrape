@@ -20,6 +20,17 @@ poetry add leetscrape
 
 ## Usage
 
+### Command Line
+After installing the package, run the following command to get a code stub and a pytest test file for a given Leetcode question:
+```bash
+$ leetscrape --titleSlug two-sum --qid 1
+```
+At least one of the two arguments is required.
+- `titleSlug` is the slug of the leetcode question that is in the url of the question, and
+- `qid` is the number associated with the question.
+
+### Other classes
+
 Import the relevant classes from the package:
 
 ```python

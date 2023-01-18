@@ -1,4 +1,4 @@
-# Leetcode Questions Scraper
+# LeetScrape
 
 [![Python application](https://github.com/nikhil-ravi/LeetcodeScraper/actions/workflows/python-app.yml/badge.svg)](https://github.com/nikhil-ravi/LeetcodeScraper/actions/workflows/python-app.yml) [![deploy-docs](https://github.com/nikhil-ravi/LeetScrape/actions/workflows/deploy-docs.yml/badge.svg)](https://leetscrape.chowkabhara.com) [![PYPI](https://img.shields.io/pypi/v/leetscrape)](https://pypi.org/project/leetscrape/)
 
@@ -6,9 +6,32 @@ Introducing the LeetScrape - a powerful and efficient Python package designed to
 
 Use this package to get the list of Leetcode questions, their topic and company tags, difficulty, question body (including test cases, constraints, hints), and code stubs in any of the available programming languages.
 
+## Installation
+
+Start by installing the package from pip or conda:
+```bash
+pip install leetscrape
+# or using conda:
+conda install leetscrape
+# or using poetry:
+poetry add leetscrape
+```
+
+
 ## Usage
 
-Import the relevant classes from the [`leetcode`](/src/leetcode/) package:
+### Command Line
+After installing the package, run the following command to get a code stub and a pytest test file for a given Leetcode question:
+```bash
+$ leetscrape --titleSlug two-sum --qid 1
+```
+At least one of the two arguments is required.
+- `titleSlug` is the slug of the leetcode question that is in the url of the question, and
+- `qid` is the number associated with the question.
+
+### Other classes
+
+Import the relevant classes from the package:
 
 ```python
 from leetscrape.GetQuestionsList import GetQuestionsList
@@ -16,7 +39,8 @@ from leetscrape.GetQuestionInfo import GetQuestionInfo
 from leetscrape.utils import combine_list_and_info, get_all_questions_body
 ```
 
-Get the list of questions, companies, topic tags, categories using the [`GetQuestionsList`](/src/leetcode/GetQuestionsList.py) class:
+### Scrape the list of problems
+Get the list of questions, companies, topic tags, categories using the [`GetQuestionsList`](/GetQuestionsList/#getquestionslist) class:
 
 ```python
 ls = GetQuestionsList()
@@ -24,10 +48,8 @@ ls.scrape() # Scrape the list of questions
 ls.to_csv(directory_path="../data/") # Save the scraped tables to a directory
 ```
 
-> **Warning**
-> The default ALL_JSON_URL in the [`GetQuestionsList`](/src/leetcode/GetQuestionsList.py) class might be out-of-date. Please update it by going to https://leetcode.com/problemset/all/ and exploring the Networks tab for a query returning all.json.
-
-Query individual question's information such as the body, test cases, constraints, hints, code stubs, and company tags using the [`GetQuestionInfo`](/src/leetcode/GetQuestionInfo.py) class:
+### Get Question statement and other information
+Query individual question's information such as the body, test cases, constraints, hints, code stubs, and company tags using the [`GetQuestionInfo`](/GetQuestionsList/#getquestionslist) class:
 
 ```python
 # This table can be generated using the previous commnd
@@ -58,7 +80,8 @@ questions = combine_list_and_info(
 )
 ```
 
-Create a PostgreSQL database using the [SQL](/example/sql/create.sql) dump and insert data using `sqlalchemy`.
+### Upload scraped data to a Database
+Create a PostgreSQL database using the [SQL](https://github.com/nikhil-ravi/LeetScrape/blob/dcabdd8bd11b03aac0b725c0adc4881b9be9a48f/example/sql/create.sql) dump and insert data using `sqlalchemy`.
 
 ```python
 from sqlalchemy import create_engine
@@ -70,32 +93,32 @@ questions.to_sql(con=engine, name="questions", if_exists="append", index=False)
 # ls.companies, # ls.questionTopics, and ls.questionCategory
 ```
 
-Use the `queried_questions_list` PostgreSQL function (defined in the SQL dump) to query for questions containy query terms:
+Use the [`queried_questions_list`](https://github.com/nikhil-ravi/LeetScrape/blob/dcabdd8bd11b03aac0b725c0adc4881b9be9a48f/example/sql/create.sql#L228-L240) PostgreSQL function (defined in the SQL dump) to query for questions containy query terms:
 
 ```sql
 select * from queried_questions_list('<query term>');
 ```
 
-Use the `all_questions_list` PostgreSQL function (defined in the SQL dump) to query for all the questions in the database:
+Use the [`all_questions_list`](https://github.com/nikhil-ravi/LeetScrape/blob/dcabdd8bd11b03aac0b725c0adc4881b9be9a48f/example/sql/create.sql#L243-L253) PostgreSQL function (defined in the SQL dump) to query for all the questions in the database:
 
 ```sql
 select * from all_questions_list();
 ```
 
-Use the `get_similar_questions` PostgreSQL function (defined in the SQL dump) to query for all questions similar to a given question:
+Use the [`get_similar_questions`](https://github.com/nikhil-ravi/LeetScrape/blob/dcabdd8bd11b03aac0b725c0adc4881b9be9a48f/example/sql/create.sql#L255-L270) PostgreSQL function (defined in the SQL dump) to query for all questions similar to a given question:
 
 ```sql
 select * from get_similar_questions(<QuestionID>);
 ```
 
-Use the [`extract_solutions`](/src/leetcode/utils.py:) method to extract solution code stubs from your python script. Note that the solution method should be a part of a class named `Solution` (see [here](/example/solutions/q_0001_TwoSum.py) for an example):
+Use the [`extract_solutions`](/utils/#leetscrape.utils.extract_solutions) method to extract solution code stubs from your python script. Note that the solution method should be a part of a class named `Solution` (see [here](https://github.com/nikhil-ravi/LeetScrape/blob/dcabdd8bd11b03aac0b725c0adc4881b9be9a48f/example/solutions/q_0001_TwoSum.py) for an example):
 
 ```python
 # Returns a dict of the form {QuestionID: solutions}
 solutions = extract_solutions(filename=<path_to_python_script>)
 ```
 
-Use the [`upload_solutions`](/src/leetcode/utils.py:) method to upload the extracted solution code stubs from your python script to the PosgreSQL database.
+Use the [`upload_solutions`](/utils/#leetscrape.utils.upload_solutions) method to upload the extracted solution code stubs from your python script to the PosgreSQL database.
 
 ```python
 upload_solutions(engine=<sqlalchemy_engine>, row_id = <row_id_in_table>, solutions: <solutions_dict>)

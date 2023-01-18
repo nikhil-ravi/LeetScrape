@@ -231,11 +231,19 @@ as
 $$
 select array_to_json(array_agg(row_to_json(out))) from (
     with base as (select * from search_questions(term))
-    select  base."QID", base.title, questions.difficulty, array_agg(topic_tags.name) as "topicTags" from base
+    select 
+        questions."QID",
+        questions.title, 
+        questions.difficulty, 
+        questions."categorySlug", 
+        questions."paidOnly", 
+        (questions.solutions = array[]::jsonb[]) is FALSE as "solutionAvailable",
+        array_agg(topic_tags.name) as "topicTags"
+    from base
     join questions on base."QID" = questions."QID"
     join question_topics on questions."QID" = question_topics."QID"
     join topic_tags on topic_tags.slug = question_topics."tagSlug"
-    group by 1, 2, 3
+    group by 1, 2, 3, 4, 5, 6
 ) as out
 $$ language SQL;
 
@@ -245,10 +253,18 @@ RETURNS json
 as
 $$
 select array_to_json(array_agg(row_to_json(out))) from (
-    select  questions."QID", questions.title, questions.difficulty, array_agg(topic_tags.name) as "topicTags" from questions
+    select 
+        questions."QID",
+        questions.title, 
+        questions.difficulty, 
+        questions."categorySlug", 
+        questions."paidOnly", 
+        (questions.solutions = array[]::jsonb[]) is FALSE as "solutionAvailable",
+        array_agg(topic_tags.name) as "topicTags" 
+    from questions
     join question_topics on questions."QID" = question_topics."QID"
     join topic_tags on topic_tags.slug = question_topics."tagSlug"
-    group by 1, 2, 3
+    group by 1, 2, 3, 4, 5, 6
 ) as out
 $$ language SQL;
 

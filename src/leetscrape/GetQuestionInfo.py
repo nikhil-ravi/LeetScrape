@@ -2,6 +2,8 @@ import requests
 import pandas as pd
 import json
 import time
+import requests
+
 
 # Leetcode's graphql api endpoint
 BASE_URL = "https://leetcode.com/graphql"
@@ -13,18 +15,24 @@ class GetQuestionInfo:
 
     Args:
         titleSlug (str): The title slug of the question.
-        questions_info_path (str): The filename of the file containing the list of all questions containing their QID and titleSlug.
     """
 
-    def __init__(
-        self, titleSlug: str, questions_info_path: str = "../example/data/questions.csv"
-    ):
+    def __init__(self, titleSlug: str):
         self.titleSlug = titleSlug
-        self.questions_info = pd.read_csv(
-            questions_info_path, usecols=["QID", "titleSlug"], index_col="titleSlug"
+        req = requests.get("https://leetcode.com/api/problems/algorithms/").json()
+        self.questions_info = (
+            pd.json_normalize(req["stat_status_pairs"])
+            .rename(
+                columns={
+                    "stat.frontend_question_id": "QID",
+                    "stat.question__title_slug": "titleSlug",
+                }
+            )[["QID", "titleSlug"]]
+            .sort_values("QID")
+            .set_index("titleSlug")
         )
 
-    def scrape(self) -> dict:
+    def scrape(self) -> dict[str, str | int | list[str] | list[int]]:
         """This method calls the Leetcode graphql api to query for the hints, companyTags (currently returning null as this is a premium feature), code snippets, and content of the question.
 
         Raises:
@@ -36,6 +44,7 @@ class GetQuestionInfo:
         data = {
             "query": """query questionHints($titleSlug: String!) {
                 question(titleSlug: $titleSlug) {
+                    questionFrontendId
                     hints
                     companyTags {
                         name
@@ -57,14 +66,14 @@ class GetQuestionInfo:
         req = requests.post(BASE_URL, json=data)
         if req.status_code == 404:
             raise ValueError(self.titleSlug)
-        while req.status_code == 429:
+        while req.status_code == 429 | 400:
             time.sleep(10)
             req = requests.post(BASE_URL, json=data)
             if req.status_code == 404:
                 raise ValueError(self.titleSlug)
         self.req = req.json()
         return {
-            "QID": self.questions_info.loc[self.titleSlug].QID,
+            "QID": self.req["data"]["question"]["questionFrontendId"],
             "titleSlug": self.titleSlug,
             "Hints": self.req["data"]["question"]["hints"],
             "Companies": self.req["data"]["question"]["companyTags"],

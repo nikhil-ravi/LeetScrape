@@ -58,6 +58,7 @@ nav:
   - index.md
   - GetQuestionsList.md
   - GetQuestionInfo.md
+  - GenerateCodeStub.md
   - utils.md
 
 extra:

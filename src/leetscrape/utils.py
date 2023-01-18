@@ -144,3 +144,8 @@ def upload_solutions(
     engine.execute(
         update(questions).where(questions.c.QID == row_id).values({col_name: solutions})
     )
+
+
+def camel_case(s):
+    s = re.sub(r"(_|-)+", " ", s).title().replace(" ", "")
+    return "".join([s[0].lower(), s[1:]])
