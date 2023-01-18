@@ -6,6 +6,8 @@ Introducing the LeetScrape - a powerful and efficient Python package designed to
 
 Use this package to get the list of Leetcode questions, their topic and company tags, difficulty, question body (including test cases, constraints, hints), and code stubs in any of the available programming languages.
 
+Detailed documentation available [here](https://leetscrape.chowkabhara.com/).
+
 ## Installation
 
 Start by installing the package from pip or conda:
