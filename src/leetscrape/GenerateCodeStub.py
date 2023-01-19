@@ -64,14 +64,18 @@ class GenerateCodeStub:
             else:
                 raise ValueError("There is no question with the passed qid")
         else:
-            if self.qid is not None:
-                assert (
-                    self.titleSlug == self.QUESTIONS_LIST.loc[self.qid].titleSlug
-                ), f"Both titleSlug and qid were passed but they do not match.\n{self.qid}: {self.QUESTIONS_LIST.loc[self.qid].titleSlug}"
+            if self.titleSlug in self.QUESTIONS_LIST.titleSlug.tolist():
+                if self.qid is not None:
+                    if self.titleSlug != self.QUESTIONS_LIST.loc[self.qid].titleSlug:
+                        raise ValueError(
+                            f"Both titleSlug and qid were passed but they do not match.\n{self.qid}: {self.QUESTIONS_LIST.loc[self.qid].titleSlug}"
+                        )
+                else:
+                    self.qid = self.QUESTIONS_LIST[
+                        self.QUESTIONS_LIST["titleSlug"] == self.titleSlug
+                    ].index[0]
             else:
-                self.qid = self.QUESTIONS_LIST[
-                    self.QUESTIONS_LIST["titleSlug"] == self.titleSlug
-                ].index[0]
+                raise ValueError("There is no question with the passed titleSlug.")
 
         self.filename = f"q_{str(self.qid).zfill(4)}_{camel_case(self.titleSlug)}.py"
         questionInfoScraper = GetQuestionInfo(titleSlug=self.titleSlug)
@@ -92,9 +96,6 @@ class GenerateCodeStub:
             str: Te problem statement in markdown format.
         """
         problem_statement = self.data.Body
-        if problem_statement is None:
-            print("Problem statement not found.")
-            return ""
         problem_statement_rst = pypandoc.convert_text(
             problem_statement, format="html", to="md"
         )

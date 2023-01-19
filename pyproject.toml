@@ -29,6 +29,8 @@ flake8 = "^6.0.0"
 docstring-parser = "^0.15"
 pytest-xdist = "^3.1.0"
 pytest-html = "^3.2.0"
+coverage = "^7.0.5"
+pytest-cov = "^4.0.0"
 
 
 [tool.poetry.group.docs.dependencies]

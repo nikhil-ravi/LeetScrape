@@ -91,12 +91,12 @@ class GetQuestionInfo:
         }
         req = requests.post(BASE_URL, json=data)
         if req.status_code == 404:
-            raise ValueError(self.titleSlug)
+            raise ValueError("Leetcode's graphql API can't be found.")
         while req.status_code == 429 | 400:
             time.sleep(10)
             req = requests.post(BASE_URL, json=data)
             if req.status_code == 404:
-                raise ValueError(self.titleSlug)
+                raise ValueError("Leetcode's graphql API can't be found.")
         self.req = req.json()
         return QuestionInfo(
             QID=self.req["data"]["question"]["questionFrontendId"],
