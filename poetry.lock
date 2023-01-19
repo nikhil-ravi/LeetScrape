@@ -1490,15 +1490,18 @@ files = [
 markdown = ">=3.2"
 
 [[package]]
-name = "pypandoc"
+name = "pypandoc-binary"
 version = "1.10"
 description = "Thin wrapper for pandoc."
 category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "pypandoc-1.10-py3-none-any.whl", hash = "sha256:ff9658cda18865a822695349a7c707756ecc454b59b71f920b554579ec54aaa7"},
-    {file = "pypandoc-1.10.tar.gz", hash = "sha256:101164d154f0b9957372cdbf285396153b74144fda47f531fb556de244efc86e"},
+    {file = "pypandoc_binary-1.10-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:e5d3b06ae17bc505c65926225dab0cc05ce7300970ace28ec002ce9db8601706"},
+    {file = "pypandoc_binary-1.10-py3-none-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ed9ebab4f42368f31330d78a0dc242ef4c54936dd83fbf34fb5a6f40ce44e84e"},
+    {file = "pypandoc_binary-1.10-py3-none-musllinux_1_1_x86_64.whl", hash = "sha256:5ced536b959dd5cd1d5d438b384c25367f29c51bf4c40582fd23cb7cff48f1b3"},
+    {file = "pypandoc_binary-1.10-py3-none-win32.whl", hash = "sha256:ce6dc8dd1724cc25393aae54e5f5f22090c1ed2e931fc3cade8e28685098b6e4"},
+    {file = "pypandoc_binary-1.10-py3-none-win_amd64.whl", hash = "sha256:9cb55c29412062b48a59883377e8effbc2631148f1291c55c623a1b6e5231fbb"},
 ]
 
 [[package]]
@@ -2191,9 +2194,9 @@ files = [
 ]
 
 [extras]
-file = ["pypandoc", "marko"]
+file = ["marko"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "bbf5e4cfece0a0b0b683d4c7b76f8b6870c22755d190d925b6a8b1c892715f0b"
+content-hash = "17332a433083e1ae9c9d5b3247557bf2c1b2548998ded6ed31df97116c6a0ff3"
