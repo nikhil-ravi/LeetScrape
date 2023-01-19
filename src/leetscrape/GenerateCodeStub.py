@@ -1,6 +1,6 @@
 import pypandoc
 from black import format_str, FileMode
-from .GetQuestionInfo import GetQuestionInfo
+from .GetQuestionInfo import GetQuestionInfo, QuestionInfo
 import requests
 import pandas as pd
 from .utils import camel_case
@@ -75,7 +75,7 @@ class GenerateCodeStub:
 
         self.filename = f"q_{str(self.qid).zfill(4)}_{camel_case(self.titleSlug)}.py"
         questionInfoScraper = GetQuestionInfo(titleSlug=self.titleSlug)
-        self.data = questionInfoScraper.scrape()
+        self.data: QuestionInfo = questionInfoScraper.scrape()
 
     def fetch_code_stub(self) -> str:
         """Extracts the python code text from Leetcode's API response.
@@ -83,19 +83,7 @@ class GenerateCodeStub:
         Returns:
             str: The python code stub.
         """
-        code_stub = self.data["Code"]
-        return code_stub  # self._clean_type_hints(code_stub)  # type: ignore
-
-    def _clean_type_hints(self, code_stub: str) -> str:
-        """Cleaning type hints to adhere to Python 3.10.
-
-        Args:
-            code_stub (str): The python code stub.
-
-        Returns:
-            str: Cleaned code stub.
-        """
-        return code_stub.replace("List", "list").replace("Dict", "dict")
+        return self.data.Code
 
     def fetch_problem_statement(self) -> str:
         """Extracts the python problem statement from Leetcode's API response.
@@ -103,7 +91,7 @@ class GenerateCodeStub:
         Returns:
             str: Te problem statement in markdown format.
         """
-        problem_statement: str = self.data["Body"]  # type: ignore ignore: types
+        problem_statement = self.data.Body
         if problem_statement is None:
             print("Problem statement not found.")
             return ""
@@ -125,12 +113,10 @@ class GenerateCodeStub:
             lines_to_write.append(line)
             if line.startswith("class Solution"):
                 lines_to_write.append(f'    """{problem_statement}"""')
-            elif line.endswith(":"):
+            elif line.endswith(":") and not line.strip().startswith("#"):
                 lines_to_write.append("        pass")
         text_to_write = "\n".join(lines_to_write)
-        # formatted_text_to_write = format_str(text_to_write, mode=FileMode())
-        formatted_text_to_write = text_to_write
-        return formatted_text_to_write
+        return text_to_write
 
     def fetch_problem_statement_codeblocks(self, problem_statement: str) -> list[str]:
         """Extract the code blocks from the given problem statement string. These codeblocks contain the basic test cases provided by Leetcode.
@@ -168,7 +154,12 @@ class GenerateCodeStub:
                     if line.startswith("Input:"):
                         inp = line.split("Input:")[1]
                 parameter_dict = parse_args(inp)  # type: ignore
-                parameter_dict["output"] = re.search("Output: (.*)\n", test)
+                parameter_dict["output"] = re.search(
+                    "Output: (.*)\n",
+                    test.replace("true", "True").replace(
+                        "false", "False"
+                    ),  # Leetcode uses true and false for True and False, respectively.
+                )
                 if parameter_dict["output"] is not None:
                     parameter_dict["output"] = parse_args(
                         parameter_dict["output"]
@@ -177,10 +168,10 @@ class GenerateCodeStub:
                         .replace("\n", "")
                     )["Output"]
                 parameters.append(parameter_dict)
-        print(parameters)
         output_string = ", ".join(list(parameters[0].keys()))
         input_string = ", ".join(
-            [
+            f"({test_case})"
+            for test_case in [
                 ", ".join(
                     [
                         "'{}'".format(x) if isinstance(x, str) else str(x)
@@ -209,8 +200,22 @@ class GenerateCodeStub:
         pytestParameterDecorator = (
             f"""@pytest.mark.parametrize("{output_string}", [{input_string}])"""
         )
-        className = re.search("class (.*):", code_text).group(1)  # type: ignore
-        methodsName = re.findall("def (.*):", code_text)
+        className = "Solution"
+
+        # //TODO: This should be used to find the classname instead of hard-coding it to "Solution"
+
+        # # Use the `parse` function to create an AST from the file's contents
+        # root = ast.parse(code_text)
+        # # Iterate through the top-level nodes in the AST
+        # for node in ast.walk(root):
+        #     # Check if the node is a ClassDef node
+        #     if isinstance(node, ast.ClassDef):
+        #         # Check if the class is not commented
+        #         if not node.name.startswith("#"):
+        #             # Print the class name
+        #             print(node.name)  # type: ignore
+
+        methodsName = re.findall("\n    def (.*):", code_text)
         for i, methodName in enumerate(methodsName):
             a, b = methodName.split(") -> ")
             methodsName[i] = f"{a}, output: {b})"
@@ -232,13 +237,14 @@ class Test{className}:""" + "".join(
 
         return test_to_write
 
-    def generate_code_stub_and_tests(self):
+    def generate_code_stub_and_tests(self, test=False):
         """Wrapper that creates the code stub and test files after formatting them through black."""
         code_to_write = self.create_code_file()
         test_to_write = self.create_test_file(code_to_write)
-        with open(self.filename, "w") as f:
-            f.write(format_str(code_to_write, mode=FileMode()))
-            print(f"Code stub save to {self.filename}")
-        with open(f"test_{self.filename}", "w") as f:
-            f.write(format_str(test_to_write, mode=FileMode()))
-            print(f"Test file written to test_{self.filename}.py")
+        if not test:
+            with open(self.filename, "w", encoding="utf-8") as f:
+                f.write(format_str(code_to_write, mode=FileMode()))
+                print(f"Code stub save to {self.filename}")
+            with open(f"test_{self.filename}", "w", encoding="utf-8") as f:
+                f.write(format_str(test_to_write, mode=FileMode()))
+                print(f"Test file written to test_{self.filename}.py")
