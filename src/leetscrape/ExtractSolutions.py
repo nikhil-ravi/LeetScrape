@@ -115,7 +115,7 @@ def parse_method_docstring(docstring: str | None) -> dict:
     time_complexity = [item for item in docs.meta if item.args[0] == "time"]
     space_complexity = [item for item in docs.meta if item.args[0] == "space"]
     return {
-        "description": docs.long_description,
+        "description": f"{docs.short_description}\n\n{docs.long_description}",
         "args": [vars(arg) for arg in docs.params],
         "returns": vars(docs.returns),
         "examples": [vars(example) for example in docs.examples],
