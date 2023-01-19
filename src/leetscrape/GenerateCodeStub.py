@@ -172,8 +172,10 @@ class GenerateCodeStub:
                 parameters.append(parameter_dict)
         output_string = ", ".join(list(parameters[0].keys()))
         input_string = ", ".join(
-            f"({', '.join([f'{el}' for el in list(parameter.values())])})"
-            for parameter in parameters
+            [
+                f"({str(list(parameter.values())).strip('[]')})"
+                for parameter in parameters
+            ]
         )
         return input_string, output_string
 
