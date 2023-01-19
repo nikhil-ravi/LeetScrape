@@ -38,5 +38,5 @@ jobs:
       id: test
       working-directory: ./
       run: |
-        pytest -vv -rf -x > unit-test-result.log
+        pytest
       continue-on-error: true
