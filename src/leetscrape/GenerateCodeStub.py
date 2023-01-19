@@ -9,14 +9,14 @@ import marko
 import re
 
 
-def parse_args(args: str) -> dict[str, str]:
+def parse_args(args: str) -> dict:
     """A method to parse the arguments of a python method given in string format.
 
     Args:
         args (str): The arguments of a method in string format.
 
     Returns:
-        dict[str, str]: A dictionary of argument value pairs.
+        dict: A dictionary of argument value pairs.
     """
     args = "f({})".format(args)
     tree = ast.parse(args)
@@ -168,12 +168,25 @@ class GenerateCodeStub:
                     if line.startswith("Input:"):
                         inp = line.split("Input:")[1]
                 parameter_dict = parse_args(inp)  # type: ignore
-                parameter_dict["output"] = re.search("Output: (.*)\n", test).group(1)  # type: ignore
+                parameter_dict["output"] = re.search("Output: (.*)\n", test)
+                if parameter_dict["output"] is not None:
+                    parameter_dict["output"] = parse_args(
+                        parameter_dict["output"]
+                        .group(0)
+                        .replace("Output: ", "Output= ")
+                        .replace("\n", "")
+                    )["Output"]
                 parameters.append(parameter_dict)
+        print(parameters)
         output_string = ", ".join(list(parameters[0].keys()))
         input_string = ", ".join(
             [
-                f"({str(list(parameter.values())).strip('[]')})"
+                ", ".join(
+                    [
+                        "'{}'".format(x) if isinstance(x, str) else str(x)
+                        for x in parameter.values()
+                    ]
+                )
                 for parameter in parameters
             ]
         )
