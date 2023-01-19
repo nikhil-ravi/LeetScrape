@@ -2,10 +2,37 @@ import requests
 import pandas as pd
 import json
 import time
+from pydantic.dataclasses import dataclass
+from pydantic import Field
+import pypandoc
 
 
 # Leetcode's graphql api endpoint
 BASE_URL = "https://leetcode.com/graphql"
+
+
+@dataclass
+class QuestionInfo:
+    QID: int
+    titleSlug: str
+    Hints: list[str] = Field(default_factory=list)
+    Companies: list[str] | None = None
+    SimilarQuestions: list[int] = Field(default_factory=list)
+    Code: str = Field(default_factory=str)
+    Body: str = Field(default_factory=str)
+
+    def __repr__(self) -> str:
+        repr = f"{self.QID}. {self.titleSlug}\n"
+        repr += pypandoc.convert_text(self.Body, "md", "html")
+        if len(self.Hints) > 1:
+            repr += "Hints:\n"
+            for idx, hint in enumerate(self.Hints):
+                repr += f"    {idx}. {hint}\n"
+        if self.Companies is not None:
+            repr += f"Companies: {self.Companies}\n"
+        if len(self.SimilarQuestions) > 0:
+            repr += f"SimilarQuestions: {self.SimilarQuestions}\n"
+        return repr
 
 
 class GetQuestionInfo:
@@ -31,14 +58,14 @@ class GetQuestionInfo:
             .set_index("titleSlug")
         )
 
-    def scrape(self) -> dict[str, str | int | list[str] | list[int]]:
+    def scrape(self) -> QuestionInfo:
         """This method calls the Leetcode graphql api to query for the hints, companyTags (currently returning null as this is a premium feature), code snippets, and content of the question.
 
         Raises:
             ValueError: When the connection to Leetcode's graphql api is not established.
 
         Returns:
-            dict: Dictionary containing the QID, titleSlug, Hints, Companies, Similar Questions, Code stubs, and the body of the question.
+            QuestionInfo: Contains the QID, titleSlug, Hints, Companies, Similar Questions, Code stubs, and the body of the question.
         """
         data = {
             "query": """query questionHints($titleSlug: String!) {
@@ -71,15 +98,15 @@ class GetQuestionInfo:
             if req.status_code == 404:
                 raise ValueError(self.titleSlug)
         self.req = req.json()
-        return {
-            "QID": self.req["data"]["question"]["questionFrontendId"],
-            "titleSlug": self.titleSlug,
-            "Hints": self.req["data"]["question"]["hints"],
-            "Companies": self.req["data"]["question"]["companyTags"],
-            "SimilarQuestions": self.get_similar_questions(),
-            "Code": self.get_code_snippet(),
-            "Body": self.req["data"]["question"]["content"],
-        }
+        return QuestionInfo(
+            QID=self.req["data"]["question"]["questionFrontendId"],
+            titleSlug=self.titleSlug,
+            Hints=self.req["data"]["question"]["hints"],
+            Companies=self.req["data"]["question"]["companyTags"],
+            SimilarQuestions=self.get_similar_questions(),
+            Code=self.get_code_snippet(),
+            Body=self.req["data"]["question"]["content"],
+        )
 
     # Similar questions
     def get_similar_questions(self) -> list[int]:
