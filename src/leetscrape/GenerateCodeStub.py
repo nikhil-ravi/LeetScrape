@@ -3,7 +3,7 @@ from black import format_str, FileMode
 from .GetQuestionInfo import GetQuestionInfo, QuestionInfo
 import requests
 import pandas as pd
-from .utils import camel_case
+from .helper import camel_case
 import ast
 import marko
 import re
@@ -76,7 +76,7 @@ class GenerateCodeStub:
                     ].index[0]
             else:
                 raise ValueError("There is no question with the passed titleSlug.")
-
+        print(f"Generating code stub for {self.qid}. {self.titleSlug}")
         self.filename = f"q_{str(self.qid).zfill(4)}_{camel_case(self.titleSlug)}.py"
         questionInfoScraper = GetQuestionInfo(titleSlug=self.titleSlug)
         self.data: QuestionInfo = questionInfoScraper.scrape()
@@ -241,11 +241,16 @@ class Test{className}:""" + "".join(
     def generate_code_stub_and_tests(self, test=False):
         """Wrapper that creates the code stub and test files after formatting them through black."""
         code_to_write = self.create_code_file()
-        test_to_write = self.create_test_file(code_to_write)
+        if not self.data.isPaidOnly:
+            test_to_write = self.create_test_file(code_to_write)
         if not test:
             with open(self.filename, "w", encoding="utf-8") as f:
                 f.write(format_str(code_to_write, mode=FileMode()))
                 print(f"Code stub save to {self.filename}")
-            with open(f"test_{self.filename}", "w", encoding="utf-8") as f:
-                f.write(format_str(test_to_write, mode=FileMode()))
-                print(f"Test file written to test_{self.filename}.py")
+
+            if not self.data.isPaidOnly:
+                with open(f"test_{self.filename}", "w", encoding="utf-8") as f:
+                    f.write(
+                        format_str(test_to_write, mode=FileMode())
+                    )  # ignore: unbounded
+                    print(f"Test file written to test_{self.filename}.py")

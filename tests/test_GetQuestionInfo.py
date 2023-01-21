@@ -31,3 +31,9 @@ class TestGetQuestionInfo:
         print(titleSlug)
         gqi = GetQuestionInfo(titleSlug)
         gqi.scrape()
+
+
+class TestGetQuestionInfoPaidOnly:
+    def test_scrape(self):
+        gqi = GetQuestionInfo("max-consecutive-ones-ii")
+        gqi.scrape()

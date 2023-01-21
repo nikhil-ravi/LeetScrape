@@ -6,3 +6,5 @@ coverage:
     patch:
       default:
         informational: true
+codecov: 
+ token: 5092e877-785c-4f28-8ff7-c9c64fcacbb3

@@ -168,3 +168,5 @@ cython_debug/
 */sql/insert.sql
 example/data_test/
 tests/reports
+tests/data
+codecov.exe

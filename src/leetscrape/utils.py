@@ -1,5 +1,4 @@
 import pickle
-import re
 
 import numpy as np
 import pandas as pd
@@ -69,8 +68,3 @@ def get_all_questions_body(
     with open(save_to, "wb") as f:
         pickle.dump(questions_info_list, f)
     return questions_info_list
-
-
-def camel_case(s):
-    s = re.sub(r"(_|-)+", " ", s).title().replace(" ", "")
-    return "".join([s[0].lower(), s[1:]])

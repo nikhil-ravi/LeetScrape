@@ -1,3 +1,4 @@
+import warnings
 import requests
 import pandas as pd
 import json
@@ -5,6 +6,8 @@ import time
 from pydantic.dataclasses import dataclass
 from pydantic import Field
 import pypandoc
+
+from .helper import camel_case
 
 
 # Leetcode's graphql api endpoint
@@ -20,6 +23,7 @@ class QuestionInfo:
     SimilarQuestions: list[int] = Field(default_factory=list)
     Code: str = Field(default_factory=str)
     Body: str = Field(default_factory=str)
+    isPaidOnly: bool = False
 
     def __repr__(self) -> str:
         repr = f"{self.QID}. {self.titleSlug}\n"
@@ -84,6 +88,7 @@ class GetQuestionInfo:
                         code
                     }
                     content
+                    isPaidOnly
                 }
             }
         """,
@@ -105,8 +110,17 @@ class GetQuestionInfo:
             Companies=self.req["data"]["question"]["companyTags"],
             SimilarQuestions=self.get_similar_questions(),
             Code=self.get_code_snippet(),
-            Body=self.req["data"]["question"]["content"],
+            Body=self.get_question_body(),
+            isPaidOnly=self.req["data"]["question"]["isPaidOnly"],
         )
+
+    def get_question_body(self) -> str:  # type: ignore
+
+        if not self.req["data"]["question"]["isPaidOnly"]:
+            return self.req["data"]["question"]["content"]
+        else:
+            warnings.warn("This questions is only for paid Leetcode subscribers.")
+            return "This questions is only for paid Leetcode subscribers."
 
     # Similar questions
     def get_similar_questions(self) -> list[int]:
@@ -122,7 +136,7 @@ class GetQuestionInfo:
         return similar_questions
 
     # Code Snippet
-    def get_code_snippet(self) -> str:
+    def get_code_snippet(self) -> str:  # type: ignore
         """A helper method to extract the code snippets from the query response.
         Currently, this method returns the Python3 code snippet if available,
         else it returns a barebones Python3 code snippet with the class name and
@@ -131,12 +145,14 @@ class GetQuestionInfo:
         Returns:
             str: Python3 code snippet
         """
-        python_code_snippet = [
-            code_snippet
-            for code_snippet in self.req["data"]["question"]["codeSnippets"]
-            if code_snippet["langSlug"] == "python3"
-        ]
-        if len(python_code_snippet) > 0:
-            return python_code_snippet[0]["code"]
+        if not self.req["data"]["question"]["isPaidOnly"]:
+            python_code_snippet = [
+                code_snippet
+                for code_snippet in self.req["data"]["question"]["codeSnippets"]
+                if code_snippet["langSlug"] == "python3"
+            ]
+            if len(python_code_snippet) > 0:
+                return python_code_snippet[0]["code"]
         else:
-            return f"# This question has no Python code stub\nclass Solution:\n    def {self.titleSlug}(self) -> Any:\n      "
+            warnings.warn("This questions is only for paid Leetcode subscribers.")
+            return f"# This question has no Python code stub\nclass Solution:\n    def {camel_case(self.titleSlug)}(self) -> Any:\n      "
