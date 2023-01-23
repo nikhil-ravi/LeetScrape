@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://leetscrape.chowkabhara.com/</loc>
+         <lastmod>2023-01-23</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://leetscrape.chowkabhara.com/ExtractSolutions/</loc>
+         <lastmod>2023-01-23</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://leetscrape.chowkabhara.com/GenerateCodeStub/</loc>
+         <lastmod>2023-01-23</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://leetscrape.chowkabhara.com/GetQuestionInfo/</loc>
+         <lastmod>2023-01-23</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://leetscrape.chowkabhara.com/GetQuestionsList/</loc>
+         <lastmod>2023-01-23</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://leetscrape.chowkabhara.com/utils/</loc>
+         <lastmod>2023-01-23</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+</urlset>
