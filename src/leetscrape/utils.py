@@ -44,7 +44,10 @@ def combine_list_and_info(
 
 
 def get_all_questions_body(
-    titleSlugs, isPaidOnlyList, save_to: str = "../example/data/dump.pickle"
+    titleSlugs,
+    isPaidOnlyList,
+    save_to: str = "../example/data/dump.pickle",
+    test_idx: slice = None,
 ) -> list[dict[str, str | int]]:
     """
     Get the body of all questions in the list and save it to a file.
@@ -58,12 +61,25 @@ def get_all_questions_body(
         list[dict[str, str|int]]: A list of dictionaries containing the question information
     """
     questions_info_list = []
-    for i, (titleSlug, paidOnly) in enumerate(tqdm(zip(titleSlugs, isPaidOnlyList))):
-        if not paidOnly:
-            questions_info_list.append(GetQuestionInfo(titleSlug).scrape())
-        if i % 10 == 0:
-            with open(save_to, "wb") as f:
-                pickle.dump(questions_info_list, f)
+    test_titleSlugs = titleSlugs[test_idx] if test_idx else titleSlugs
+    test_isPaidOnlyList = isPaidOnlyList[test_idx] if test_idx else isPaidOnlyList
+    for i, (titleSlug, paidOnly) in enumerate(
+        tqdm(
+            zip(test_titleSlugs, test_isPaidOnlyList),
+            initial=test_idx.start if test_idx else 0,
+            total=test_idx.stop if test_idx else len(titleSlugs),
+        )
+    ):
+        try:
+            if not paidOnly:
+                questions_info_list.append(GetQuestionInfo(titleSlug).scrape())
+            if i % 10 == 0:
+                with open(save_to, "wb") as f:
+                    pickle.dump(questions_info_list, f)
+            continue
+        except Exception as e:
+            print(f"Error at {titleSlug}: {e}")
+            raise e
 
     with open(save_to, "wb") as f:
         pickle.dump(questions_info_list, f)

@@ -49,18 +49,32 @@ class GetQuestionInfo:
 
     def __init__(self, titleSlug: str):
         self.titleSlug = titleSlug
-        req = requests.get("https://leetcode.com/api/problems/algorithms/").json()
-        self.questions_info = (
-            pd.json_normalize(req["stat_status_pairs"])
-            .rename(
-                columns={
-                    "stat.frontend_question_id": "QID",
-                    "stat.question__title_slug": "titleSlug",
-                }
-            )[["QID", "titleSlug"]]
-            .sort_values("QID")
-            .set_index("titleSlug")
-        )
+        self.questions_info = self.fetch_questions_stub_id()
+
+    def fetch_questions_stub_id(self):
+        endpoint_url = "https://leetcode.com/api/problems/{endpoint}/"
+        # endpoints = [
+        #     "algorithms",
+        #     "database",
+        #     "shell",
+        #     "concurrency",
+        #     "javascript",
+        # ]
+        endpoints = ["all"]  # returns all questions
+        question_data = []
+
+        for endpoint in endpoints:
+            req = requests.get(endpoint_url.format(endpoint=endpoint)).json()
+            question_data.append(
+                pd.json_normalize(req["stat_status_pairs"]).rename(
+                    columns={
+                        "stat.frontend_question_id": "QID",
+                        "stat.question__title_slug": "titleSlug",
+                    }
+                )[["QID", "titleSlug"]]
+            )
+
+        return pd.concat(question_data).sort_values("QID").set_index("titleSlug")
 
     def scrape(self) -> QuestionInfo:
         """This method calls the Leetcode graphql api to query for the hints, companyTags (currently returning null as this is a premium feature), code snippets, and content of the question.
@@ -115,7 +129,6 @@ class GetQuestionInfo:
         )
 
     def get_question_body(self) -> str:  # type: ignore
-
         if not self.req["data"]["question"]["isPaidOnly"]:
             return self.req["data"]["question"]["content"]
         else:
@@ -153,6 +166,8 @@ class GetQuestionInfo:
             ]
             if len(python_code_snippet) > 0:
                 return python_code_snippet[0]["code"]
+            else:
+                return f"# This question has no Python code stub.\n# Generating a generic Python code stub\nclass Solution:\n    def {camel_case(self.titleSlug)}(self) -> Any:\n      "
         else:
             warnings.warn("This questions is only for paid Leetcode subscribers.")
-            return f"# This question has no Python code stub\nclass Solution:\n    def {camel_case(self.titleSlug)}(self) -> Any:\n      "
+            return f"# This questions is only for paid Leetcode subscribers.\n# Generating a generic Python code stub\nclass Solution:\n    def {camel_case(self.titleSlug)}(self) -> Any:\n      "
