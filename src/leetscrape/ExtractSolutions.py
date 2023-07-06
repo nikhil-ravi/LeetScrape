@@ -14,7 +14,7 @@ class ExtractSolutions:
         Extract solutions from a given python file.
 
         Args:
-            filename (str): The path of the file to extract solutions from. This python script should have the solution method (s) in the class named in the top_class-name.
+            filename (str): The path of the file to extract solutions from. This python script should have the solution method(s) in the class named in the top_class-name.
             top_class_name (str, optional): The name of the class from which to extract the solutions from. Defaults to `Solution'.
 
         Raises:
