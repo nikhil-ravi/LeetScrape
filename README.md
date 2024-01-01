@@ -8,9 +8,12 @@ Use this package to get the list of Leetcode questions, their topic and company 
 
 Detailed documentation available [here](https://leetscrape.chowkabhara.com/).
 
+There is also a related Next.js web app to serve the scraped questions and your answers at [leetcode-nextjs](https://github.com/nikhil-ravi/leetcode-nextjs). See the [demo](https://scuffedcode.chowkabhara.com/).
+
 ## Installation
 
 Start by installing the package from pip or conda:
+
 ```bash
 pip install leetscrape
 # or using conda:
@@ -19,15 +22,18 @@ conda install leetscrape
 poetry add leetscrape
 ```
 
-
 ## Usage
 
 ### Command Line
+
 Run the `leetscrape` command to get a code stub and a pytest test file for a given Leetcode question:
+
 ```bash
 $ leetscrape --titleSlug two-sum --qid 1
 ```
+
 At least one of the two arguments is required.
+
 - `titleSlug` is the slug of the leetcode question that is in the url of the question, and
 - `qid` is the number associated with the question.
 
@@ -42,6 +48,7 @@ from leetscrape.utils import combine_list_and_info, get_all_questions_body
 ```
 
 ### Scrape the list of problems
+
 Get the list of questions, companies, topic tags, categories using the [`GetQuestionsList`](/GetQuestionsList/#getquestionslist) class:
 
 ```python
@@ -51,6 +58,7 @@ ls.to_csv(directory_path="../data/") # Save the scraped tables to a directory
 ```
 
 ### Get Question statement and other information
+
 Query individual question's information such as the body, test cases, constraints, hints, code stubs, and company tags using the [`GetQuestionInfo`](/GetQuestionsList/#getquestionslist) class:
 
 ```python
@@ -83,6 +91,7 @@ questions = combine_list_and_info(
 ```
 
 ### Upload scraped data to a Database
+
 Create a PostgreSQL database using the [SQL](https://github.com/nikhil-ravi/LeetScrape/blob/dcabdd8bd11b03aac0b725c0adc4881b9be9a48f/example/sql/create.sql) dump and insert data using `sqlalchemy`.
 
 ```python
@@ -113,10 +122,10 @@ Use the [`get_similar_questions`](https://github.com/nikhil-ravi/LeetScrape/blob
 select * from get_similar_questions(<QuestionID>);
 ```
 
-
 ### Extract solutions from a `.py` file
 
 You may want to extract solutions from a `.py` files to upload them to a database. You can do so using the [`ExtractSolutions`](/src/leetscrape/ExtractSolutions.py) class.
+
 ```python
 from leetscrape.ExtractSolutions import extract
 # Returns a dict of the form {QuestionID: solutions}
