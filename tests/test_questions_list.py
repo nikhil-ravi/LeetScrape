@@ -1,6 +1,7 @@
-from leetscrape.GetQuestionsList import GetQuestionsList
 import os
 import shutil
+
+from leetscrape import GetQuestionsList
 
 
 class TestGetQuestionsList:
