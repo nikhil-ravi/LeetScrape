@@ -6,8 +6,8 @@ import pandas as pd
 import requests
 
 from ._constants import NO_PYTHON_STUB, PREMIUM_CUSTOMER_PYTHON_STUB
+from ._helper import camel_case
 from .models import Question
-from .utils import camel_case
 
 # Leetcode's graphql api endpoint
 BASE_URL = "https://leetcode.com/graphql"
@@ -23,32 +23,19 @@ class GetQuestion:
 
     def __init__(self, titleSlug: str):
         self.titleSlug = titleSlug
-        self.questions_info = self.fetch_questions_stub_id()
+        self.questions_info = self.fetch_all_questions_id_and_stub()
 
-    def fetch_questions_stub_id(self):
-        endpoint_url = "https://leetcode.com/api/problems/{endpoint}/"
-        # endpoints = [
-        #     "algorithms",
-        #     "database",
-        #     "shell",
-        #     "concurrency",
-        #     "javascript",
-        # ]
-        endpoints = ["all"]  # returns all questions
-        question_data = []
+    @staticmethod
+    def fetch_all_questions_id_and_stub():
+        req = requests.get("https://leetcode.com/api/problems/all/").json()
+        question_data = pd.json_normalize(req["stat_status_pairs"]).rename(
+            columns={
+                "stat.frontend_question_id": "QID",
+                "stat.question__title_slug": "titleSlug",
+            }
+        )[["QID", "titleSlug"]]
 
-        for endpoint in endpoints:
-            req = requests.get(endpoint_url.format(endpoint=endpoint)).json()
-            question_data.append(
-                pd.json_normalize(req["stat_status_pairs"]).rename(
-                    columns={
-                        "stat.frontend_question_id": "QID",
-                        "stat.question__title_slug": "titleSlug",
-                    }
-                )[["QID", "titleSlug"]]
-            )
-
-        return pd.concat(question_data).sort_values("QID").set_index("titleSlug")
+        return question_data.sort_values("QID").set_index("titleSlug")
 
     def scrape(self) -> Question:
         """This method calls the Leetcode graphql api to query for the hints, companyTags (currently returning null as this is a premium feature), code snippets, and content of the question.

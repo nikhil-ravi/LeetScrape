@@ -1,6 +1,4 @@
-import ast
 import pickle
-import re
 
 import numpy as np
 import pandas as pd
@@ -71,24 +69,3 @@ def get_all_questions_body(
     with open(save_to, "wb") as f:
         pickle.dump(questions_info_list, f)
     return questions_info_list
-
-
-def camel_case(s):
-    s = re.sub(r"(_|-)+", " ", s).title().replace(" ", "")
-    return "".join([s[0].lower(), s[1:]])
-
-
-def parse_args(args: str) -> dict:
-    """A method to parse the arguments of a python method given in string format.
-
-    Args:
-        args (str): The arguments of a method in string format.
-
-    Returns:
-        dict: A dictionary of argument value pairs.
-    """
-    args = "f({})".format(args)
-    tree = ast.parse(args)
-    funccall = tree.body[0].value  # type: ignore
-    args = {arg.arg: ast.literal_eval(arg.value) for arg in funccall.keywords}  # type: ignore
-    return args  # type: ignore

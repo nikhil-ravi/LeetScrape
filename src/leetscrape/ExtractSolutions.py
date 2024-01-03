@@ -1,7 +1,7 @@
 import ast
-from docstring_parser.google import GoogleParser, Section, SectionType, DEFAULT_SECTIONS
 
 import sqlalchemy
+from docstring_parser.google import DEFAULT_SECTIONS, GoogleParser, Section, SectionType
 from sqlalchemy import MetaData, update
 
 
