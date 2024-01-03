@@ -1,5 +1,6 @@
-import requests
 import pandas as pd
+import requests
+
 from ._constants import CATEGORIES, TOPIC_TAGS
 
 
@@ -24,60 +25,28 @@ class GetQuestionsList:
         self._scrape_question_category()
         self._add_category_to_questions_list()
 
-    def _get_categories_and_topicTags_lists(self):
-        """Get the categories and topic tags of LeetCode problems and store them in the
-        'categories' and 'topicTags' attribute respectively."""
-        print("Getting Categories ... ", end="")
-        # List of problem categories
-        self.categories = pd.DataFrame.from_records(CATEGORIES)
-        print("Done")
-        # List of problem topic tags
-        print("Scraping Topic Tags ... ", end="")
-        self.topicTags = pd.DataFrame.from_records(TOPIC_TAGS)
-        print("Done")
-
-    def _scrape_question_category(self):
-        """Scrape the category of each question and store it in the 'questionCategory' dataframe."""
-        print("Extracting question category ... ", end="")
-        categories_data = []
-        for category in self.categories["slug"].values:
-            data = {
-                "query": """query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
-                        problemsetQuestionList: questionList(
-                            categorySlug: $categorySlug
-                            limit: $limit
-                            skip: $skip
-                            filters: $filters
-                        ) {
-                            questions: data {
-                                QID: questionFrontendId
-                            }
-                        }
+    def _scrape_companies(self):
+        """Scrape the company tags of each question. This always returns an empty
+        dataframe as this is a paid only feature."""
+        print("Scraping companies ... ", end="")
+        data = {
+            "query": """query questionCompanyTags {
+                    companyTags {
+                        name
+                        slug
+                        questionCount
                     }
-                """,
-                "variables": {
-                    "categorySlug": category,
-                    "skip": 0,
-                    "limit": self.limit,
-                    "filters": {},
-                },
-            }
-
-            r = requests.post("https://leetcode.com/graphql", json=data).json()
-            categories = pd.json_normalize(
-                r["data"]["problemsetQuestionList"]["questions"]
-            )
-            categories["categorySlug"] = category
-            categories_data.append(categories)
-        self.questionCategory = pd.concat(categories_data, axis=0, ignore_index=True)
+                }
+            """,
+            "variables": {},
+        }
+        r = requests.post("https://leetcode.com/graphql", json=data).json()
+        self.companies = pd.json_normalize(r["data"]["companyTags"])
         print("Done")
 
     def _scrape_questions_list(self):
         """
-        Scrapes the list of questions from leetcode.com and store them in the 'questions'
-        dataframe. The columns include the question QID, acceptance rate, difficulty,
-        title, titleSlug, and topic tags. It also has a column indicating
-        whether the question is available only to Leetcode's paying customers.
+        Scrapes the list of questions from leetcode.com and store them in the 'questions' dataframe. The columns include the question QID, acceptance rate, difficulty, title, titleSlug, and topic tags. It also has a column indicating whether the question is available only to Leetcode's paying customers.
         """
         print("Scraping questions list ... ", end="")
         data = {
@@ -140,23 +109,52 @@ class GetQuestionsList:
         ).dropna()
         print("Done")
 
-    def _scrape_companies(self):
-        """Scrape the company tags of each question. This always returns an empty
-        dataframe as this is a paid only feature."""
-        print("Scraping companies ... ", end="")
-        data = {
-            "query": """query questionCompanyTags {
-                    companyTags {
-                        name
-                        slug
-                        questionCount
+    def _get_categories_and_topicTags_lists(self):
+        """Get the categories and topic tags of LeetCode problems and store them in the
+        'categories' and 'topicTags' attribute respectively."""
+        print("Getting Categories ... ", end="")
+        # List of problem categories
+        self.categories = pd.DataFrame.from_records(CATEGORIES)
+        print("Done")
+        # List of problem topic tags
+        print("Scraping Topic Tags ... ", end="")
+        self.topicTags = pd.DataFrame.from_records(TOPIC_TAGS)
+        print("Done")
+
+    def _scrape_question_category(self):
+        """Scrape the category of each question and store it in the 'questionCategory' dataframe."""
+        print("Extracting question category ... ", end="")
+        categories_data = []
+        for category in self.categories["slug"].values:
+            data = {
+                "query": """query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
+                        problemsetQuestionList: questionList(
+                            categorySlug: $categorySlug
+                            limit: $limit
+                            skip: $skip
+                            filters: $filters
+                        ) {
+                            questions: data {
+                                QID: questionFrontendId
+                            }
+                        }
                     }
-                }
-            """,
-            "variables": {},
-        }
-        r = requests.post("https://leetcode.com/graphql", json=data).json()
-        self.companies = pd.json_normalize(r["data"]["companyTags"])
+                """,
+                "variables": {
+                    "categorySlug": category,
+                    "skip": 0,
+                    "limit": self.limit,
+                    "filters": {},
+                },
+            }
+
+            r = requests.post("https://leetcode.com/graphql", json=data).json()
+            categories = pd.json_normalize(
+                r["data"]["problemsetQuestionList"]["questions"]
+            )
+            categories["categorySlug"] = category
+            categories_data.append(categories)
+        self.questionCategory = pd.concat(categories_data, axis=0, ignore_index=True)
         print("Done")
 
     def _add_category_to_questions_list(self):

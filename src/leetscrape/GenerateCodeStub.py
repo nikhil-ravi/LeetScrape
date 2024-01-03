@@ -1,28 +1,14 @@
-import pypandoc
-from black import format_str, FileMode
-from .GetQuestionInfo import GetQuestionInfo, QuestionInfo
-import requests
-import pandas as pd
-from .helper import camel_case
-import ast
-import marko
 import re
 
+import marko
+import pandas as pd
+import pypandoc
+import requests
+from black import FileMode, format_str
 
-def parse_args(args: str) -> dict:
-    """A method to parse the arguments of a python method given in string format.
-
-    Args:
-        args (str): The arguments of a method in string format.
-
-    Returns:
-        dict: A dictionary of argument value pairs.
-    """
-    args = "f({})".format(args)
-    tree = ast.parse(args)
-    funccall = tree.body[0].value  # type: ignore
-    args = {arg.arg: ast.literal_eval(arg.value) for arg in funccall.keywords}  # type: ignore
-    return args  # type: ignore
+from .models import Question
+from .question import GetQuestion
+from .utils import camel_case, parse_args
 
 
 class GenerateCodeStub:
@@ -78,8 +64,8 @@ class GenerateCodeStub:
                 raise ValueError("There is no question with the passed titleSlug.")
         print(f"Generating code stub for {self.qid}. {self.titleSlug}")
         self.filename = f"q_{str(self.qid).zfill(4)}_{camel_case(self.titleSlug)}.py"
-        questionInfoScraper = GetQuestionInfo(titleSlug=self.titleSlug)
-        self.data: QuestionInfo = questionInfoScraper.scrape()
+        questionInfoScraper = GetQuestion(titleSlug=self.titleSlug)
+        self.data: Question = questionInfoScraper.scrape()
 
     def fetch_code_stub(self) -> str:
         """Extracts the python code text from Leetcode's API response.
