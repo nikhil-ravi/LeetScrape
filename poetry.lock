@@ -47,6 +47,25 @@ files = [
 dev = ["freezegun (>=1.0,<2.0)", "pytest (>=6.0)", "pytest-cov"]
 
 [[package]]
+name = "beautifulsoup4"
+version = "4.12.2"
+description = "Screen-scraping library"
+category = "main"
+optional = false
+python-versions = ">=3.6.0"
+files = [
+    {file = "beautifulsoup4-4.12.2-py3-none-any.whl", hash = "sha256:bd2520ca0d9d7d12694a53d44ac482d181b4ec1888909b035a3dbf40d0f57d4a"},
+    {file = "beautifulsoup4-4.12.2.tar.gz", hash = "sha256:492bbc69dca35d12daac71c4db1bfff0c876c00ef4a2ffacce226d4638eb72da"},
+]
+
+[package.dependencies]
+soupsieve = ">1.2"
+
+[package.extras]
+html5lib = ["html5lib"]
+lxml = ["lxml"]
+
+[[package]]
 name = "black"
 version = "22.12.0"
 description = "The uncompromising code formatter."
@@ -760,6 +779,22 @@ docs = ["mdx-gh-links (>=0.2)", "mkdocs (>=1.5)", "mkdocs-gen-files", "mkdocs-li
 testing = ["coverage", "pyyaml"]
 
 [[package]]
+name = "markdownify"
+version = "0.11.6"
+description = "Convert HTML to markdown."
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "markdownify-0.11.6-py3-none-any.whl", hash = "sha256:ba35fe289d5e9073bcd7d2cad629278fe25f1a93741fcdc0bfb4f009076d8324"},
+    {file = "markdownify-0.11.6.tar.gz", hash = "sha256:009b240e0c9f4c8eaf1d085625dcd4011e12f0f8cec55dedf9ea6f7655e49bfe"},
+]
+
+[package.dependencies]
+beautifulsoup4 = ">=4.9,<5"
+six = ">=1.15,<2"
+
+[[package]]
 name = "marko"
 version = "1.3.1"
 description = "A markdown parser with high extensibility."
@@ -1457,21 +1492,6 @@ pyyaml = "*"
 extra = ["pygments (>=2.12)"]
 
 [[package]]
-name = "pypandoc-binary"
-version = "1.12"
-description = "Thin wrapper for pandoc."
-category = "main"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "pypandoc_binary-1.12-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:3c6e4cccc87c13f2649dafcf5670a4e26774e5a3e39ab14ae43c6f3055a5f9b6"},
-    {file = "pypandoc_binary-1.12-py3-none-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7eb1ac487453a1463355662860106640ac0204dedb40f586f66cff4c7a73e001"},
-    {file = "pypandoc_binary-1.12-py3-none-musllinux_1_1_x86_64.whl", hash = "sha256:dc0dd09289ff68c5b036f334921521c2622018d9c566ec3688f0eb635cb613c7"},
-    {file = "pypandoc_binary-1.12-py3-none-win32.whl", hash = "sha256:93c228e05852844a784d6a3f429a8ef28f30c5b77cca49d12493e6bdc8426925"},
-    {file = "pypandoc_binary-1.12-py3-none-win_amd64.whl", hash = "sha256:600006a15ff1729160c203768be0aa95fd43d50ec88f8b23ece0d1423b6f633c"},
-]
-
-[[package]]
 name = "pytest"
 version = "7.4.4"
 description = "pytest: simple powerful testing with Python"
@@ -1583,21 +1603,6 @@ files = [
 
 [package.dependencies]
 six = ">=1.5"
-
-[[package]]
-name = "python-dotenv"
-version = "0.21.1"
-description = "Read key-value pairs from a .env file and set them as environment variables"
-category = "dev"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "python-dotenv-0.21.1.tar.gz", hash = "sha256:1c93de8f636cde3ce377292818d0e440b6e45a82f215c3744979151fa8151c49"},
-    {file = "python_dotenv-0.21.1-py3-none-any.whl", hash = "sha256:41e12e0318bebc859fcc4d97d4db8d20ad21721a6aa5047dd59f090391cb549a"},
-]
-
-[package.extras]
-cli = ["click (>=5.0)"]
 
 [[package]]
 name = "pytz"
@@ -1966,6 +1971,18 @@ files = [
 ]
 
 [[package]]
+name = "soupsieve"
+version = "2.5"
+description = "A modern CSS selector implementation for Beautiful Soup."
+category = "main"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "soupsieve-2.5-py3-none-any.whl", hash = "sha256:eaa337ff55a1579b6549dc679565eac1e3d000563bcb1c8ab0d0fefbc0c2cdc7"},
+    {file = "soupsieve-2.5.tar.gz", hash = "sha256:5663d5a7b3bfaeee0bc4372e7fc48f9cff4940b3eec54a6451cc5299f1097690"},
+]
+
+[[package]]
 name = "stack-data"
 version = "0.6.3"
 description = "Extract data from python stack frames and tracebacks for informative displays"
@@ -2142,4 +2159,4 @@ file = ["marko"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "398c3de7e7afc6291c7f67549789b5b7981babeb18918bef06b42b46c5bdd469"
+content-hash = "8afe2879d8c2b7a3bcb9109b4b9b057c951a31b78267cc662c67ff4f08188ad5"

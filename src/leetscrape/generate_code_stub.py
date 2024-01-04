@@ -1,8 +1,8 @@
 import re
 
 import marko
-import pypandoc
 from black import FileMode, format_str
+from markdownify import markdownify as md
 
 from ._helper import camel_case, parse_args
 from .models import Question
@@ -102,10 +102,12 @@ class GenerateCodeStub:
         """
         # Because sup is non-standard markdown, we need to convert them to latex
         problem_statement = re.sub(r"<sup>(.*?)</sup>", r"^{\1}", self.data.Body)
-        problem_statement_rst = pypandoc.convert_text(
-            problem_statement, format="html", to="md"
+        problem_statement_rst = md(problem_statement)
+        return (
+            problem_statement_rst.replace("**Input:**", "Input:")
+            .replace("**Output:**", "Output:")
+            .replace("**Explanation:**", "Explanation:")
         )
-        return problem_statement_rst
 
     def _create_code_file(self) -> str:
         """Prepares the text to be written in the python file.
@@ -136,7 +138,7 @@ class GenerateCodeStub:
         lines_to_write.append(
             "    # If you have multiple solutions, add them all here as methods of the same class."
         )
-        text_to_write = "\n".join(lines_to_write)
+        text_to_write = "\n".join(lines_to_write).replace("\n\n", "\n")
         return text_to_write
 
     def _extract_codeblocks_in_problem_statement(
@@ -155,7 +157,7 @@ class GenerateCodeStub:
         code_blocks = [
             child.children[0].children
             for child in markdown_text.children
-            if isinstance(child, marko.block.CodeBlock)
+            if isinstance(child, marko.block.FencedCode)
         ]
         return code_blocks
 

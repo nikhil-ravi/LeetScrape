@@ -15,15 +15,20 @@ def leetscrape_question(args, parser):
     from . import GenerateCodeStub
 
     if not (args.qid or args.titleSlug):
-        parser.error("At least one of qid or titleSlug need to be specified.")
-        # raise ValueError("At least one of qid or titleSlug need to be specified.")
+        parser.error("One of qid or titleSlug need to be specified.")
+    if args.qid and args.titleSlug:
+        parser.error("Only one of qid or titleSlug can be specified.")
     if args.qid:
-        fcs = GenerateCodeStub(qid=args.qid)
+        for qid in args.qid:
+            fcs = GenerateCodeStub(qid=qid)
+            fcs.generate(
+                directory=args.out if args.out else ".",
+            )
     else:
         fcs = GenerateCodeStub(titleSlug=args.titleSlug)
-    fcs.generate(
-        directory=args.out if args.out else ".",
-    )
+        fcs.generate(
+            directory=args.out if args.out else ".",
+        )
 
 
 def leetscrape_solution(args, parser):
@@ -59,6 +64,21 @@ def leetscrape_solution(args, parser):
         output_file_name = os.path.join(output_dir, file_name + ".mdx")
         ExtractSolutions(args.input).to_mdx(filename=output_file_name)
         print(f"Saved solution file to {output_file_name}")
+
+
+def leetscrape_ts(args, parser):
+    import subprocess
+
+    subprocess.run(
+        [
+            "npx",
+            "create-next-app@latest",
+            args.out if args.out else "leetscrape-ts",
+            "-e",
+            "https://github.com/nikhil-ravi/leetscrape-ts",
+        ],
+        shell=True,
+    )
 
 
 def leetscrape():
@@ -97,6 +117,7 @@ def leetscrape():
         "--qid",
         "-q",
         # metavar="Question ID",
+        nargs="+",
         type=int,
         help="Enter a Leetcode question ID",
         required=False,
@@ -142,6 +163,22 @@ def leetscrape():
         required=False,
     )
     parser_solution.set_defaults(func=leetscrape_solution)
+
+    # Subcommand for creating the leetscrape-ts Next.js project to host the solutions
+    parser_ts = subparsers.add_parser(
+        "ts",
+        help="Create the leetscrape-ts Next.js project to host the solutions",
+        description="Create the leetscrape-ts Next.js project to host the solutions",
+    )
+    parser_ts.add_argument(
+        "--out",
+        "-o",
+        # metavar="Output directory",
+        type=str,
+        help="Enter the path to the output directory to save the project",
+        required=False,
+    )
+    parser_ts.set_defaults(func=leetscrape_ts)
 
     args = parser.parse_args()
     args.func(args, parser)

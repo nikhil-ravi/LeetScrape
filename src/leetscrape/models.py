@@ -1,6 +1,6 @@
 from typing import Literal
 
-import pypandoc
+from markdownify import markdownify as md
 from pydantic import Field
 from pydantic.dataclasses import dataclass
 
@@ -23,7 +23,7 @@ class Question:
 
     def __repr__(self) -> str:
         repr = f"{self.QID}. {self.titleSlug}\n"
-        repr += pypandoc.convert_text(self.Body, "md", "html")
+        repr += md(self.Body)
         if len(self.Hints) > 1:
             repr += "Hints:\n"
             for idx, hint in enumerate(self.Hints):
