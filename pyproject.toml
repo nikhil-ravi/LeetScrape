@@ -16,6 +16,7 @@ tqdm = "^4.64.1"
 marko = "^1.2.2"
 pydantic = "^1.10.4"
 markdownify = "^0.11.6"
+docstring-parser = "^0.15"
 
 [tool.poetry.group.dev]
 optional = true
@@ -23,7 +24,6 @@ optional = true
 ipykernel = "^6.20.2"
 black = "^22.12.0"
 flake8 = "^6.0.0"
-docstring-parser = "^0.15"
 isort = "^5.13.2"
 
 [tool.poetry.group.testing]
@@ -39,10 +39,11 @@ pytest-cov = "^4.0.0"
 [tool.poetry.group.docs]
 optional = true
 [tool.poetry.group.docs.dependencies]
-mkdocstrings = { extras = ["python"], version = "^0.19.1" }
 mkdocs = "^1.4.2"
 mkdocs-material = "^9.5.3"
+mkdocstrings = { extras = ["python"], version = "^0.24.0" }
 mkdocs-git-revision-date-localized-plugin = "^1.1.0"
+griffe = "^0.38.1"
 
 [build-system]
 requires = ["poetry-core"]
