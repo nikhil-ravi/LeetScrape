@@ -1,4 +1,4 @@
-name: deploy-docs
+name: pytest-and-deploy-docs
 on:
   push:
     branches:
