@@ -1,9 +1,6 @@
 import os
-import pickle
 
-import pandas as pd
-
-from leetscrape.utils import combine_list_and_info, get_all_questions_body
+from leetscrape.utils import get_all_questions_body  # combine_list_and_info,
 
 # def test_combine_list_and_info():
 #     with open("./example/data/questionBody.pickle", "rb") as f:
