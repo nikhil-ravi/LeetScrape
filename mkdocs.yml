@@ -24,14 +24,18 @@ theme:
     - navigation.tracking
     # - navigation.tabs
     # - navigation.tabs.sticky
-    # - navigation.sections
+    - navigation.sections
     # - navigation.expand
     # - navigation.path
-    # - navigation.top
+    - navigation.top
+    - navigation.footer
     - search.suggest
     - search.highlight
+    - heading.autohide
     - content.action.edit
     - content.action.view
+    - content.code.copy
+    - content.code.select
 
   palette:
     # Palette toggle for automatic mode
@@ -64,15 +68,37 @@ markdown_extensions:
   - toc:
       permalink: True
   - sane_lists
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
 
 nav:
   - index.md
-  - question.md
+  - installation.md
+  - API:
+      - questions_list.md
+      - question.md
+      - generate_code_stubs.md
+      - extract_solution.md
+  - leetscrape_ts.md
 
 extra:
   analytics:
     provider: google
     property: G-LL26YLB3M5
+  social:
+    - icon: fontawesome/brands/github
+      link: https://www.github.com/nikhil-ravi
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/nikhil--ravi
+    - icon: fontawesome/brands/google-scholar
+      link: https://scholar.google.com/citations?user=Z4Z3QYIAAAAJ&hl=en
 
 repo_url: https://github.com/nikhil-ravi/LeetScrape
 repo_name: nikhil-ravi/LeetScrape

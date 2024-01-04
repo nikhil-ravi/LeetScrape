@@ -25,23 +25,23 @@ class GetQuestionsList:
         self._scrape_question_category()
         self._add_category_to_questions_list()
 
-    def to_csv(self, directory_path: str) -> None:
+    def to_csv(self, directory: str) -> None:
         """A method to export the scraped data into csv files in preparation for
         injection into a database.
 
         Args:
-            directory_path (str): The directory path to export the scraped data into.
+            directory (str): The directory path to export the scraped data into.
         """
-        self.companies.to_csv(directory_path + "companies.csv", index=False)
+        self.companies.to_csv(directory + "companies.csv", index=False)
         self.questions["QID"] = self.questions["QID"].astype(int)
-        self.questions.to_csv(directory_path + "questions.csv", index=False)
+        self.questions.to_csv(directory + "questions.csv", index=False)
         self.questionTopics.to_csv(
-            directory_path + "questionTopics.csv", index=True, index_label="id"
+            directory + "questionTopics.csv", index=True, index_label="id"
         )
-        self.categories.to_csv(directory_path + "categories.csv", index=False)
-        self.topicTags.to_csv(directory_path + "topicTags.csv", index=False)
+        self.categories.to_csv(directory + "categories.csv", index=False)
+        self.topicTags.to_csv(directory + "topicTags.csv", index=False)
         self.questionCategory.to_csv(
-            directory_path + "questionCategory.csv", index=True, index_label="id"
+            directory + "questionCategory.csv", index=True, index_label="id"
         )
 
     def _scrape_companies(self):

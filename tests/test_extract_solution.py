@@ -35,7 +35,7 @@ def test_to_mdx_with_filename():
     extractor = ExtractSolutions("./tests/q_0009_palindromeNumber.py")
 
     # Test converting to mdx with filename
-    extractor.to_mdx(filename="./tests/q_0009_palindromeNumber.mdx")
+    extractor.to_mdx(output_filename="./tests/q_0009_palindromeNumber.mdx")
     # Add more assertions for the specific file path
     os.remove("./tests/q_0009_palindromeNumber.mdx")
 

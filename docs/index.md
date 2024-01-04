@@ -6,20 +6,4 @@ Introducing the LeetScrape - a powerful and efficient Python package designed to
 
 Use this package to get the list of Leetcode questions, their topic and company tags, difficulty, question body (including test cases, constraints, hints), and code stubs in any of the available programming languages.
 
-## Installation
-
-Start by installing the package from pip or conda:
-```bash
-pip install leetscrape
-# or using conda:
-conda install leetscrape
-# or using poetry:
-poetry add leetscrape
-```
-
-## Commands
-
-* `leetscrape question [--out OUT] qid [qid ...]` - Generate a code stub for the given question(s).
-* `leetscrape list [--out OUT]` - List all questions without generating code stub.
-* `leetscrape solution [-h] [--out OUT] input` - Generate mdx files from solutions.
-* `leetscrape ts [--out OUT]` - Create the leetscrape-ts Next.js project to host the solutions.
+There is also a related Next.js web app to serve the scraped questions and your answers at [leetcode-nextjs](https://github.com/nikhil-ravi/leetcode-ts). See the [demo](https://scuffedcode.chowkabhara.com/).

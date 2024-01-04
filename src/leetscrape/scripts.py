@@ -49,12 +49,12 @@ def leetscrape_solution(args, parser):
             file_name = os.path.basename(solution_file).split(".py")[0]
             # create output file name
             output_file_name = os.path.join(output_dir, file_name + ".mdx")
-            ExtractSolutions(solution_file).to_mdx(filename=output_file_name)
+            ExtractSolutions(solution_file).to_mdx(output_filename=output_file_name)
         print(f"Saved {len(solution_files)} solution files to {output_dir}")
     elif os.path.isfile(args.input):
         file_name = os.path.basename(args.input).split(".py")[0]
         output_file_name = os.path.join(output_dir, file_name + ".mdx")
-        ExtractSolutions(args.input).to_mdx(filename=output_file_name)
+        ExtractSolutions(args.input).to_mdx(output_filename=output_file_name)
         print(f"Saved solution file to {output_file_name}")
 
 
@@ -94,7 +94,7 @@ def leetscrape():
         "-o",
         # metavar="Output file name",
         type=str,
-        help="Specify the output file name",
+        help="Specify the output file name to store the list of questions.",
         required=False,
     )
     parser_list.set_defaults(func=leetscrape_list)
@@ -110,7 +110,7 @@ def leetscrape():
         # metavar="Question ID",
         nargs="+",
         type=int,
-        help="Enter a Leetcode question ID",
+        help="Enter Leetcode question ID(s) (e.g. 1 2 3)",
     )
     parser_question.add_argument(
         "--out",

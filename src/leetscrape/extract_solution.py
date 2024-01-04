@@ -11,6 +11,7 @@ class ExtractSolutions:
         with open(self.filename) as fd:
             file_contents = fd.read()
         self.module = ast.parse(file_contents)
+        self.solutions = None
 
     def extract(self, top_class_name: str = "Solution") -> list[Solution]:
         """
@@ -43,7 +44,7 @@ class ExtractSolutions:
             if isinstance(node, ast.FunctionDef)
         ]
 
-        solutions = [
+        self.solutions = [
             Solution(
                 id=idx + 1,
                 code=self._extract_code(f),
@@ -53,7 +54,38 @@ class ExtractSolutions:
             for idx, f in enumerate(method_definitions)
         ]
 
-        return solutions
+        return self.solutions
+
+    def to_mdx(self, output_filename: str | None = None) -> str:
+        if self.solutions is None:
+            self.extract()
+        front_matter = self._extract_front_matter()
+        # Add frontmatter
+        mdx = "---\n"
+        for key, value in front_matter.items():
+            if isinstance(value, list):
+                mdx += f"{key}: {', '.join(value)}\n"
+            else:
+                mdx += f"{key}: {value}\n"
+        mdx += "---\n\n"
+        mdx += f"{self.solutions[0].problem_statement}\n\n"
+        mdx += "## Solutions\n\n"
+        for solution in self.solutions:
+            if len(self.solutions) > 1:
+                mdx += f"### Method {solution.id}\n\n"
+            mdx += f"```python\nclass Solution:\n{solution.code}```\n\n"
+            if "description" in solution.docs:
+                mdx += f"{solution.docs['description']}\n\n"
+            if "time" in solution.docs and "args" in solution.docs["time"]:
+                mdx += f"**Time Complexity**: {solution.docs['time']['args'][1]}, {solution.docs['time']['description']}  \n"
+            if "space" in solution.docs and "args" in solution.docs["space"]:
+                mdx += f"**Space Complexity**: {solution.docs['space']['args'][1]}, {solution.docs['space']['description']}  \n"
+            mdx += "\n"
+        if output_filename:
+            with open(output_filename, "w") as f:
+                f.write(mdx)
+        else:
+            return mdx
 
     def _extract_code(
         self,
@@ -78,36 +110,6 @@ class ExtractSolutions:
                     lines_to_retain.append(line)
 
         return "".join(lines_to_retain)
-
-    def to_mdx(self, filename: str | None = None) -> str:
-        solutions = self.extract()
-        front_matter = self._extract_front_matter()
-        # Add frontmatter
-        mdx = "---\n"
-        for key, value in front_matter.items():
-            if isinstance(value, list):
-                mdx += f"{key}: {', '.join(value)}\n"
-            else:
-                mdx += f"{key}: {value}\n"
-        mdx += "---\n\n"
-        mdx += f"{solutions[0].problem_statement}\n\n"
-        mdx += "## Solutions\n\n"
-        for solution in solutions:
-            if len(solutions) > 1:
-                mdx += f"### Method {solution.id}\n\n"
-            mdx += f"```python\nclass Solution:\n{solution.code}```\n\n"
-            if "description" in solution.docs:
-                mdx += f"{solution.docs['description']}\n\n"
-            if "time" in solution.docs and "args" in solution.docs["time"]:
-                mdx += f"**Time Complexity**: {solution.docs['time']['args'][1]}, {solution.docs['time']['description']}  \n"
-            if "space" in solution.docs and "args" in solution.docs["space"]:
-                mdx += f"**Space Complexity**: {solution.docs['space']['args'][1]}, {solution.docs['space']['description']}  \n"
-            mdx += "\n"
-        if filename:
-            with open(filename, "w") as f:
-                f.write(mdx)
-        else:
-            return mdx
 
     def _extract_front_matter(
         self, front_matter_name: str = "front_matter"
