@@ -38,4 +38,5 @@ jobs:
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
       - name: Build docs
-        uses: mkdocs gh-deploy --force
+        run: |
+          python -m poetry run mkdocs gh-deploy --force
