@@ -69,7 +69,7 @@ lxml = ["lxml"]
 name = "black"
 version = "22.12.0"
 description = "The uncompromising code formatter."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -281,7 +281,7 @@ files = [
 name = "click"
 version = "8.1.7"
 description = "Composable command line interface toolkit"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1074,7 +1074,7 @@ mkdocstrings = ">=0.20"
 name = "mypy-extensions"
 version = "1.0.0"
 description = "Type system extensions for programs checked with the mypy type checker."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.5"
 files = [
@@ -1231,7 +1231,7 @@ testing = ["docopt", "pytest (<6.0.0)"]
 name = "pathspec"
 version = "0.12.1"
 description = "Utility library for gitignore style pattern matching of file paths."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
@@ -1258,7 +1258,7 @@ ptyprocess = ">=0.5"
 name = "platformdirs"
 version = "4.1.0"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
@@ -2008,7 +2008,7 @@ tests = ["cython", "littleutils", "pygments", "pytest", "typeguard"]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -2161,4 +2161,4 @@ file = ["marko"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "ddc455b9402c33db1dccec4d3115e5834a4dc6fc8d3abbbc7448eb0ca489bbbd"
+content-hash = "8ce96728f4f88f96b1999e9c8c58957e35be2e399c654a139686ca8a30e35ec7"
