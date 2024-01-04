@@ -162,3 +162,15 @@ def leetscrape():
 
     args = parser.parse_args()
     args.func(args, parser)
+
+
+def leetupload_solution():
+    import argparse
+
+    # This script is deprecated and will be removed in the next release.
+    parser = argparse.ArgumentParser(
+        description="Run this script to upload the solutions to the leetscrape-ts project. DEPRECATED!"
+    )
+    parser.error(
+        "This script is deprecated and will be removed in the next release. Please use `leetscrape ts --help` instead for serving your files on the web."
+    )

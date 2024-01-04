@@ -57,3 +57,4 @@ file = ["pypandoc", "marko"]
 
 [tool.poetry.scripts]
 leetscrape = "leetscrape.scripts:leetscrape"
+leetupload_solution = "leetscrape.scripts:leetupload_solution"
