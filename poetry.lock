@@ -2462,4 +2462,4 @@ file = ["marko"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "836a74a25a2ab1f9fb4aeee654f011420ed6dc519aec8cf3efe2df05018cc25f"
+content-hash = "72b826fdbfa08e38d62520e5bbb908cd8cbcf2f5e1e374bc7250582f75357107"
