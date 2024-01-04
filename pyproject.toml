@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "leetscrape"
-version = "1.0.0"
+version = "1.0.1"
 description = "Introducing LeetScrape - a powerful and efficient Python package designed to scrape problem statements and their topic and company tags, difficulty, test cases, hints, and code stubs from LeetCode.com. Easily download and save LeetCode problems to your local machine, making it convenient for offline practice and studying. It is perfect for anyone preparing for coding interviews. With the LeetScrape, you can boost your coding skills and improve your chances of landing your dream job."
 authors = ["Nikhil Ravi <nr337@cornell.edu>"]
 license = "MIT"
@@ -10,14 +10,14 @@ documentation = "https://leetscrape.chowkabhara.com/"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-requests = "^2.28.2"
-pandas = "^1.5.2"
-tqdm = "^4.64.1"
-marko = "^1.2.2"
-pydantic = "^1.10.4"
-markdownify = "^0.11.6"
-docstring-parser = "^0.15"
 black = "^22.12.0"
+docstring-parser = "^0.15"
+markdownify = "^0.11.6"
+marko = "^1.2.2"
+pandas = "^1.5.2"
+pydantic = "^1.10.4"
+requests = "^2.28.2"
+tqdm = "^4.64.1"
 
 [tool.poetry.group.dev]
 optional = true
@@ -54,9 +54,6 @@ pythonpath = "src"
 testpaths = ["tests"]
 minversion = "6.0"
 addopts = "-ra -q"
-
-[tool.poetry.extras]
-file = ["pypandoc", "marko"]
 
 [tool.poetry.scripts]
 leetscrape = "leetscrape.scripts:leetscrape"

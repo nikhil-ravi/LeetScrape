@@ -195,3 +195,7 @@ pnpm dev
 # or
 bun dev
 ```
+
+## Changelog
+
+View the changelog [here](https://leetscrape.chowkabhara.com/CHANGELOG/).

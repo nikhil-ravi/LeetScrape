@@ -82,6 +82,7 @@ nav:
       - generate_code_stubs.md
       - extract_solution.md
   - leetscrape_ts.md
+  - CHANGELOG.md
 
 extra:
   analytics:
