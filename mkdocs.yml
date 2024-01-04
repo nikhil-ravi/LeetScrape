@@ -6,7 +6,6 @@ site_dir: "docs/build"
 plugins:
   - privacy
   - search
-  - social
   - mkdocstrings:
       handlers:
         python:
