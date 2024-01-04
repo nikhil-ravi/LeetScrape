@@ -1,15 +1,18 @@
 import ast
 
-import sqlalchemy
 from docstring_parser.google import DEFAULT_SECTIONS, GoogleParser, Section, SectionType
-from sqlalchemy import MetaData, update
+
+from .models import Solution
 
 
 class ExtractSolutions:
     def __init__(self, filename: str):
         self.filename = filename
+        with open(self.filename) as fd:
+            file_contents = fd.read()
+        self.module = ast.parse(file_contents)
 
-    def extract(self, top_class_name: str = "Solution") -> list[dict]:
+    def extract(self, top_class_name: str = "Solution") -> list[Solution]:
         """
         Extract solutions from a given python file.
 
@@ -22,14 +25,12 @@ class ExtractSolutions:
             ValueError: When the provided python file does not have a class named Solution.
 
         Returns:
-            dict: A list of dictionaries, each containing an id, code [and docs].
+            list[Solution]: A list of solutions, each containing an id, code [and docs].
         """
-        with open(self.filename) as fd:
-            file_contents = fd.read()
-        module = ast.parse(file_contents)
+
         class_definition = [
             node
-            for node in module.body
+            for node in self.module.body
             if isinstance(node, ast.ClassDef) and node.name == top_class_name
         ]
         if not class_definition:
@@ -43,17 +44,18 @@ class ExtractSolutions:
         ]
 
         solutions = [
-            {
-                "id": idx,
-                "code": self.extract_code(f),
-                "docs": parse_method_docstring(ast.get_docstring(f, clean=True)),
-            }
+            Solution(
+                id=idx + 1,
+                code=self._extract_code(f),
+                docs=parse_method_docstring(ast.get_docstring(f, clean=True)),
+                problem_statement=ast.get_docstring(class_definition[0], clean=True),
+            )
             for idx, f in enumerate(method_definitions)
         ]
 
         return solutions
 
-    def extract_code(
+    def _extract_code(
         self,
         node: ast.AsyncFunctionDef | ast.FunctionDef,
     ) -> str:
@@ -76,6 +78,69 @@ class ExtractSolutions:
                     lines_to_retain.append(line)
 
         return "".join(lines_to_retain)
+
+    def to_mdx(self, filename: str | None = None) -> str:
+        solutions = self.extract()
+        front_matter = self._extract_front_matter()
+        # Add frontmatter
+        mdx = "---\n"
+        for key, value in front_matter.items():
+            if isinstance(value, list):
+                mdx += f"{key}: {', '.join(value)}\n"
+            else:
+                mdx += f"{key}: {value}\n"
+        mdx += "---\n\n"
+        mdx += f"{solutions[0].problem_statement}\n\n"
+        mdx += "## Solutions\n\n"
+        for solution in solutions:
+            if len(solutions) > 1:
+                mdx += f"### Method {solution.id}\n\n"
+            mdx += f"```python\nclass Solution:\n{solution.code}```\n\n"
+            if "description" in solution.docs:
+                mdx += f"{solution.docs['description']}\n\n"
+            if "time" in solution.docs and "args" in solution.docs["time"]:
+                mdx += f"**Time Complexity**: {solution.docs['time']['args'][1]}, {solution.docs['time']['description']}  \n"
+            if "space" in solution.docs and "args" in solution.docs["space"]:
+                mdx += f"**Space Complexity**: {solution.docs['space']['args'][1]}, {solution.docs['space']['description']}  \n"
+            mdx += "\n"
+        if filename:
+            with open(filename, "w") as f:
+                f.write(mdx)
+        else:
+            return mdx
+
+    def _extract_front_matter(
+        self, front_matter_name: str = "front_matter"
+    ) -> dict[str, str | list[str]]:
+        """
+        Extracts the front matter from the given AST module.
+
+        Args:
+            front_matter_name (str): The name of the variable containing the front matter. Defaults to "front_matter".
+
+        Returns:
+            dict[str, str | list[str]]: The extracted front matter as a dictionary.
+
+        Raises:
+            ValueError: If the front_matter is not a dictionary.
+        """
+        front_matter = {}
+
+        for item in self.module.body:
+            if isinstance(item, ast.Assign) and any(
+                isinstance(target, ast.Name) and target.id == front_matter_name
+                for target in item.targets
+            ):
+                if not isinstance(item.value, ast.Dict):
+                    raise ValueError("front_matter must be a dict")
+
+                for key, value in zip(item.value.keys, item.value.values):
+                    if isinstance(value, ast.Constant):
+                        front_matter[key.s] = value.s
+                    elif isinstance(value, ast.List):
+                        front_matter[key.s] = [el.s for el in value.elts]
+
+        return front_matter
 
 
 def get_doc_string_lines(
@@ -122,39 +187,3 @@ def parse_method_docstring(docstring: str | None) -> dict:
         "time": vars(time_complexity[0]) if len(time_complexity) > 0 else {},
         "space": vars(space_complexity[0]) if len(space_complexity) > 0 else {},
     }
-
-
-def extract(filename: str) -> list[dict]:
-    """Parse the solution file into its methods and their code and docstrings.
-
-    Args:
-        filename (str): The filename that contains the solutions.
-
-    Returns:
-        list[dict]: The list of solutions.
-    """
-    return ExtractSolutions(filename).extract()
-
-
-def upload_solutions(
-    engine: sqlalchemy.engine.Engine,
-    row_id: int,
-    solutions: list[dict],
-    table_name: str = "questions",
-    col_name: str = "solutions",
-) -> None:
-    """Upload solutions to the corresponding row of a table in a database.
-
-    Args:
-        engine (sqlalchemy.engine.Engine): The sqlalchemy engine used to connect to the database.
-        row_id (int): The id of the row that the solutions should be uploaded to.
-        solutions (list[dict]): The list of solutions to be uploaded.
-        table_name (str): The name of the table to upload the solutions to. Defaults to "questions".
-        col_name (str): The name of the column to upload the solutions to. Defaults to "solutions".
-    """
-    varss = MetaData(bind=engine)
-    MetaData.reflect(varss)
-    questions = varss.tables[table_name]
-    engine.execute(
-        update(questions).where(questions.c.QID == row_id).values({col_name: solutions})
-    )

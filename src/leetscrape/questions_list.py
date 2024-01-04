@@ -25,6 +25,25 @@ class GetQuestionsList:
         self._scrape_question_category()
         self._add_category_to_questions_list()
 
+    def to_csv(self, directory_path: str) -> None:
+        """A method to export the scraped data into csv files in preparation for
+        injection into a database.
+
+        Args:
+            directory_path (str): The directory path to export the scraped data into.
+        """
+        self.companies.to_csv(directory_path + "companies.csv", index=False)
+        self.questions["QID"] = self.questions["QID"].astype(int)
+        self.questions.to_csv(directory_path + "questions.csv", index=False)
+        self.questionTopics.to_csv(
+            directory_path + "questionTopics.csv", index=True, index_label="id"
+        )
+        self.categories.to_csv(directory_path + "categories.csv", index=False)
+        self.topicTags.to_csv(directory_path + "topicTags.csv", index=False)
+        self.questionCategory.to_csv(
+            directory_path + "questionCategory.csv", index=True, index_label="id"
+        )
+
     def _scrape_companies(self):
         """Scrape the company tags of each question. This always returns an empty
         dataframe as this is a paid only feature."""
@@ -166,23 +185,4 @@ class GetQuestionsList:
         )
         self.questions = self.questions.join(
             self.questionCategory.set_index("QID"), on="QID"
-        )
-
-    def to_csv(self, directory_path: str) -> None:
-        """A method to export the scraped data into csv files in preparation for
-        injection into a database.
-
-        Args:
-            directory_path (str): The directory path to export the scraped data into.
-        """
-        self.companies.to_csv(directory_path + "companies.csv", index=False)
-        self.questions["QID"] = self.questions["QID"].astype(int)
-        self.questions.to_csv(directory_path + "questions.csv", index=False)
-        self.questionTopics.to_csv(
-            directory_path + "questionTopics.csv", index=True, index_label="id"
-        )
-        self.categories.to_csv(directory_path + "categories.csv", index=False)
-        self.topicTags.to_csv(directory_path + "topicTags.csv", index=False)
-        self.questionCategory.to_csv(
-            directory_path + "questionCategory.csv", index=True, index_label="id"
         )

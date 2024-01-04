@@ -50,11 +50,16 @@ class GetQuestion:
             "query": """query questionHints($titleSlug: String!) {
                 question(titleSlug: $titleSlug) {
                     questionFrontendId
+                    title
                     hints
+                    difficulty
                     companyTags {
                         name
                         slug
                         imgUrl
+                    }
+                    topicTags {
+                        name
                     }
                     similarQuestions
                     codeSnippets {
@@ -80,9 +85,14 @@ class GetQuestion:
         response = response.json()
         return Question(
             QID=response["data"]["question"]["questionFrontendId"],
+            title=response["data"]["question"]["title"],
             titleSlug=self.titleSlug,
+            difficulty=response["data"]["question"]["difficulty"],
             Hints=response["data"]["question"]["hints"],
             Companies=response["data"]["question"]["companyTags"],
+            topics=[
+                topic["name"] for topic in response["data"]["question"]["topicTags"]
+            ],
             isPaidOnly=response["data"]["question"]["isPaidOnly"],
             Body=self._get_question_body(response),
             Code=self._get_code_snippet(response),

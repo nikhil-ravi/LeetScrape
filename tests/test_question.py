@@ -19,7 +19,9 @@ class TestQuestionInfo:
         print(
             Question(
                 QID=1,
+                title="Two Sum",
                 titleSlug="two-sum",
+                difficulty="Easy",
                 Hints=["1.", "2"],
                 Companies=["amazon", "google"],
                 SimilarQuestions=[2, 3],

@@ -1,14 +1,12 @@
 import re
 
 import marko
-import pandas as pd
 import pypandoc
-import requests
 from black import FileMode, format_str
 
+from ._helper import camel_case, parse_args
 from .models import Question
 from .question import GetQuestion
-from .utils import camel_case, parse_args
 
 
 class GenerateCodeStub:
@@ -26,17 +24,8 @@ class GenerateCodeStub:
         titleSlug: str | None = None,
         qid: int | None = None,
     ):
-        req = requests.get("https://leetcode.com/api/problems/algorithms/").json()
-        self.QUESTIONS_LIST = (
-            pd.json_normalize(req["stat_status_pairs"])
-            .rename(
-                columns={
-                    "stat.frontend_question_id": "QID",
-                    "stat.question__title_slug": "titleSlug",
-                }
-            )[["QID", "titleSlug"]]
-            .sort_values("QID")
-            .set_index("QID")
+        self.all_questions_stub_id = (
+            GetQuestion.fetch_all_questions_id_and_stub().reset_index().set_index("QID")
         )
         self.titleSlug = titleSlug
         self.qid = qid
@@ -45,20 +34,24 @@ class GenerateCodeStub:
                 raise ValueError(
                     "At least one of titleSlug or qid needs to be specified."
                 )
-            elif self.qid in self.QUESTIONS_LIST.index:
-                self.titleSlug = self.QUESTIONS_LIST.loc[self.qid].titleSlug
+            elif self.qid in self.all_questions_stub_id.index:
+                self.titleSlug = self.all_questions_stub_id.loc[self.qid].titleSlug
             else:
                 raise ValueError("There is no question with the passed qid")
         else:
-            if self.titleSlug in self.QUESTIONS_LIST.titleSlug.tolist():
+            if self.titleSlug in self.all_questions_stub_id.titleSlug.tolist():
                 if self.qid is not None:
-                    if self.titleSlug != self.QUESTIONS_LIST.loc[self.qid].titleSlug:
+                    if (
+                        self.titleSlug
+                        != self.all_questions_stub_id.loc[self.qid].titleSlug
+                    ):
                         raise ValueError(
-                            f"Both titleSlug and qid were passed but they do not match.\n{self.qid}: {self.QUESTIONS_LIST.loc[self.qid].titleSlug}"
+                            f"Both titleSlug and qid were passed but they do not match.\n"
+                            + f"{self.qid}: {self.all_questions_stub_id.loc[self.qid].titleSlug}"
                         )
                 else:
-                    self.qid = self.QUESTIONS_LIST[
-                        self.QUESTIONS_LIST["titleSlug"] == self.titleSlug
+                    self.qid = self.all_questions_stub_id[
+                        self.all_questions_stub_id["titleSlug"] == self.titleSlug
                     ].index[0]
             else:
                 raise ValueError("There is no question with the passed titleSlug.")
@@ -67,7 +60,33 @@ class GenerateCodeStub:
         questionInfoScraper = GetQuestion(titleSlug=self.titleSlug)
         self.data: Question = questionInfoScraper.scrape()
 
-    def fetch_code_stub(self) -> str:
+    def generate(self, testing=False, directory: str = ".") -> None:
+        """Wrapper that creates the code stub and test files after formatting them through black.
+
+        Args:
+            testing (bool, optional): Whether we are in a testing environment. In testing environment, the files are not written to the disk. Defaults to False.
+            directory (str, optional): The directory where the files are to be written. Defaults to ".".
+        """
+        if directory.endswith("/"):
+            directory = directory[:-1]
+        code_to_write = self._create_code_file()
+        if not self.data.isPaidOnly:
+            test_to_write = self._create_test_file(code_to_write)
+        if not testing:
+            with open(f"{directory}/{self.filename}", "w", encoding="utf-8") as f:
+                f.write(format_str(code_to_write, mode=FileMode()))
+                print(f"Code stub save to {self.filename}")
+
+            if not self.data.isPaidOnly:
+                with open(
+                    f"{directory}/test_{self.filename}", "w", encoding="utf-8"
+                ) as f:
+                    f.write(
+                        format_str(test_to_write, mode=FileMode())
+                    )  # ignore: unbounded
+                    print(f"Test file written to test_{self.filename}.py")
+
+    def _get_code_stub(self) -> str:
         """Extracts the python code text from Leetcode's API response.
 
         Returns:
@@ -75,37 +94,54 @@ class GenerateCodeStub:
         """
         return self.data.Code
 
-    def fetch_problem_statement(self) -> str:
+    def _get_problem_statement(self) -> str:
         """Extracts the python problem statement from Leetcode's API response.
 
         Returns:
             str: Te problem statement in markdown format.
         """
-        problem_statement = self.data.Body
+        # Because sup is non-standard markdown, we need to convert them to latex
+        problem_statement = re.sub(r"<sup>(.*?)</sup>", r"^{\1}", self.data.Body)
         problem_statement_rst = pypandoc.convert_text(
             problem_statement, format="html", to="md"
         )
         return problem_statement_rst
 
-    def create_code_file(self) -> str:
+    def _create_code_file(self) -> str:
         """Prepares the text to be written in the python file.
 
         Returns:
             str: The text to be written in the python file.
         """
-        problem_statement = self.fetch_problem_statement()
+        code_stub = self._get_code_stub()
+        problem_statement = self._get_problem_statement()
         lines_to_write = []
-        code_stub = self.fetch_code_stub()
+        front_matter = {
+            "qid": self.data.QID,
+            "title": self.data.title,
+            "titleSlug": self.data.titleSlug,
+            "difficulty": self.data.difficulty,
+            "tags": self.data.topics,
+        }
+        lines_to_write.append(f"front_matter = {front_matter}")
+        lines_to_write.append(
+            "# ====================== DO NOT EDIT ABOVE THIS LINE ======================"
+        )
         for line in code_stub.split("\n"):
             lines_to_write.append(line)
             if line.startswith("class Solution"):
                 lines_to_write.append(f'    """{problem_statement}"""')
             elif line.endswith(":") and not line.strip().startswith("#"):
                 lines_to_write.append("        pass")
+        lines_to_write.append(
+            "    # If you have multiple solutions, add them all here as methods of the same class."
+        )
         text_to_write = "\n".join(lines_to_write)
         return text_to_write
 
-    def fetch_problem_statement_codeblocks(self, problem_statement: str) -> list[str]:
+    def _extract_codeblocks_in_problem_statement(
+        self, problem_statement: str
+    ) -> list[str]:
         """Extract the code blocks from the given problem statement string. These codeblocks contain the basic test cases provided by Leetcode.
 
         Args:
@@ -123,7 +159,7 @@ class GenerateCodeStub:
         ]
         return code_blocks
 
-    def get_parameters(self, code_blocks: list[str]) -> tuple[str, str]:
+    def _get_parameters(self, code_blocks: list[str]) -> tuple[str, str]:
         """Extract the inputs and outputs from each of the code block in the question body.
 
         Args:
@@ -170,7 +206,7 @@ class GenerateCodeStub:
         )
         return input_string, output_string
 
-    def create_test_file(self, code_text: str) -> str:
+    def _create_test_file(self, code_text: str) -> str:
         """Generates the test file for the given question.
 
         Args:
@@ -179,11 +215,13 @@ class GenerateCodeStub:
         Returns:
             str: The text containing the pytest test case.
         """
-        problem_statement = self.fetch_problem_statement()
-        problem_statement_code_blocks = self.fetch_problem_statement_codeblocks(
+        problem_statement = self._get_problem_statement()
+        problem_statement_code_blocks = self._extract_codeblocks_in_problem_statement(
             problem_statement
         )
-        input_string, output_string = self.get_parameters(problem_statement_code_blocks)
+        input_string, output_string = self._get_parameters(
+            problem_statement_code_blocks
+        )
         pytestParameterDecorator = (
             f"""@pytest.mark.parametrize("{output_string}", [{input_string}])"""
         )
@@ -223,20 +261,3 @@ class Test{className}:""" + "".join(
         )
 
         return test_to_write
-
-    def generate_code_stub_and_tests(self, test=False):
-        """Wrapper that creates the code stub and test files after formatting them through black."""
-        code_to_write = self.create_code_file()
-        if not self.data.isPaidOnly:
-            test_to_write = self.create_test_file(code_to_write)
-        if not test:
-            with open(self.filename, "w", encoding="utf-8") as f:
-                f.write(format_str(code_to_write, mode=FileMode()))
-                print(f"Code stub save to {self.filename}")
-
-            if not self.data.isPaidOnly:
-                with open(f"test_{self.filename}", "w", encoding="utf-8") as f:
-                    f.write(
-                        format_str(test_to_write, mode=FileMode())
-                    )  # ignore: unbounded
-                    print(f"Test file written to test_{self.filename}.py")
