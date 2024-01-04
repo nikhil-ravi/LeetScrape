@@ -3,7 +3,8 @@ import pickle
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-from .GetQuestionInfo import GetQuestionInfo
+
+from .question import GetQuestion
 
 """A set of helper functions to transform and query the scraped data."""
 
@@ -60,7 +61,7 @@ def get_all_questions_body(
     questions_info_list = []
     for i, (titleSlug, paidOnly) in enumerate(tqdm(zip(titleSlugs, isPaidOnlyList))):
         if not paidOnly:
-            questions_info_list.append(GetQuestionInfo(titleSlug).scrape())
+            questions_info_list.append(GetQuestion(titleSlug).scrape())
         if i % 10 == 0:
             with open(save_to, "wb") as f:
                 pickle.dump(questions_info_list, f)

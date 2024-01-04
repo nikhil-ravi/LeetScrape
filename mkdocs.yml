@@ -2,7 +2,9 @@ site_name: LeetScrape
 site_url: https://leetscrape.chowkabhara.com/
 docs_dir: "docs/config"
 site_dir: "docs/build"
+
 plugins:
+  - privacy
   - search
   - mkdocstrings:
       handlers:
@@ -10,20 +12,26 @@ plugins:
           paths: [src]
   - git-revision-date-localized:
       enable_creation_date: true
+
 theme:
   name: material
   highlightjs: true
   features:
+    - navigation.instant
+    - navigation.instant.prefetching
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - heading.autohide
     - content.action.edit
     - content.action.view
-    - navigation.instant
-    - navigation.tracking
-    - navigation.tabs
-    - navigation.tabs.sticky
-    - navigation.sections
-    - navigation.expand
-    - navigation.path
-    - navigation.top
+    - content.code.copy
+    - content.code.select
+
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
@@ -33,7 +41,7 @@ theme:
 
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
-      scheme: default 
+      scheme: default
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
@@ -41,31 +49,51 @@ theme:
     # Palette toggle for dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
+      primary: red
+      accent: deep_orange
       toggle:
         icon: material/brightness-4
-        name: Switch to system preference
+        name: Switch to light mode
 
 watch:
   - src
 
 markdown_extensions:
-    - smarty
-    - toc:
-        permalink: True
-    - sane_lists
+  - smarty
+  - toc:
+      permalink: True
+  - sane_lists
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
 
 nav:
   - index.md
-  - GetQuestionsList.md
-  - GetQuestionInfo.md
-  - GenerateCodeStub.md
-  - ExctractSolutions.md
-  - utils.md
+  - installation.md
+  - API:
+      - questions_list.md
+      - question.md
+      - generate_code_stubs.md
+      - extract_solution.md
+  - leetscrape_ts.md
 
 extra:
   analytics:
     provider: google
     property: G-LL26YLB3M5
+  social:
+    - icon: fontawesome/brands/github
+      link: https://www.github.com/nikhil-ravi
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/nikhil--ravi
+    - icon: fontawesome/brands/google-scholar
+      link: https://scholar.google.com/citations?user=Z4Z3QYIAAAAJ&hl=en
 
 repo_url: https://github.com/nikhil-ravi/LeetScrape
 repo_name: nikhil-ravi/LeetScrape

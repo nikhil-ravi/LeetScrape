@@ -1,7 +1,9 @@
-import pytest
 import json
-from leetscrape.GenerateCodeStub import GenerateCodeStub
 import os
+
+import pytest
+
+from leetscrape import GenerateCodeStub
 
 
 def get_test_cases(n: int = 8) -> list[str]:
@@ -12,34 +14,34 @@ def get_test_cases(n: int = 8) -> list[str]:
 
 @pytest.mark.parametrize("titleSlug", sorted(get_test_cases()))
 class TestGenerateCodeStub:
-    def test_generate_code_stub_and_tests(self, titleSlug: str):
+    def test_generate(self, titleSlug: str):
         print(titleSlug)
         gqi = GenerateCodeStub(titleSlug=titleSlug)
-        gqi.generate_code_stub_and_tests(test=True)
+        gqi.generate(testing=True)
 
 
 class TestGenerateCodeStubIllegalTitleSlug:
-    def test_generate_code_stub_and_tests_valid_titleSlug(self):
+    def test_generate_valid_titleSlug(self):
         gqi = GenerateCodeStub(titleSlug="two-sum")
-        gqi.generate_code_stub_and_tests()
+        gqi.generate()
         os.remove("./q_0001_twoSum.py")
         os.remove("./test_q_0001_twoSum.py")
 
-    def test_generate_code_stub_and_tests_valid_qid(self):
+    def test_generate_valid_qid(self):
         GenerateCodeStub(qid=1)
 
-    def test_generate_code_stub_and_tests_illegal_titleSlug(self):
+    def test_generate_illegal_titleSlug(self):
         with pytest.raises(ValueError):
             GenerateCodeStub(titleSlug="no-question-like-this")
 
-    def test_generate_code_stub_and_tests_illegal_qid(self):
+    def test_generate_illegal_qid(self):
         with pytest.raises(ValueError):
             GenerateCodeStub(qid=-1)
 
-    def test_generate_code_stub_and_tests_qid_titleSlug_mismatch(self):
+    def test_generate_qid_titleSlug_mismatch(self):
         with pytest.raises(ValueError):
             GenerateCodeStub(qid=1, titleSlug="string-to-integer-atoi")
 
-    def test_generate_code_stub_and_tests_neither_qid_titleSlug_passed(self):
+    def test_generate_neither_qid_titleSlug_passed(self):
         with pytest.raises(ValueError):
             GenerateCodeStub()

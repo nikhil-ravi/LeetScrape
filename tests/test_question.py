@@ -1,6 +1,8 @@
-from leetscrape.GetQuestionInfo import GetQuestionInfo, QuestionInfo
-import pytest
 import json
+
+import pytest
+
+from leetscrape import GetQuestion, Question
 
 
 def get_test_cases(n: int = 8) -> list[str]:
@@ -15,9 +17,11 @@ def get_test_cases(n: int = 8) -> list[str]:
 class TestQuestionInfo:
     def test_question_info(self):
         print(
-            QuestionInfo(
+            Question(
                 QID=1,
+                title="Two Sum",
                 titleSlug="two-sum",
+                difficulty="Easy",
                 Hints=["1.", "2"],
                 Companies=["amazon", "google"],
                 SimilarQuestions=[2, 3],
@@ -29,11 +33,11 @@ class TestQuestionInfo:
 class TestGetQuestionInfo:
     def test_scrape(self, titleSlug: str):
         print(titleSlug)
-        gqi = GetQuestionInfo(titleSlug)
+        gqi = GetQuestion(titleSlug)
         gqi.scrape()
 
 
 class TestGetQuestionInfoPaidOnly:
     def test_scrape(self):
-        gqi = GetQuestionInfo("max-consecutive-ones-ii")
+        gqi = GetQuestion("max-consecutive-ones-ii")
         gqi.scrape()

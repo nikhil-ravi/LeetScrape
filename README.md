@@ -8,124 +8,190 @@ Use this package to get the list of Leetcode questions, their topic and company 
 
 Detailed documentation available [here](https://leetscrape.chowkabhara.com/).
 
-## Installation
+There is also a related Next.js web app to serve the scraped questions and your answers at [leetcode-nextjs](https://github.com/nikhil-ravi/leetscrape-ts). See the [demo](https://scuffedcode.chowkabhara.com/).
+
+## Get Started
+
+### Installation
 
 Start by installing the package from pip or conda:
+
 ```bash
+# Using pip
 pip install leetscrape
-# or using conda:
+
+# Using conda:
 conda install leetscrape
-# or using poetry:
+
+# Using poetry:
 poetry add leetscrape
 ```
 
+### Usage
 
-## Usage
+#### Command Line
 
-### Command Line
-Run the `leetscrape` command to get a code stub and a pytest test file for a given Leetcode question:
-```bash
-$ leetscrape --titleSlug two-sum --qid 1
-```
-At least one of the two arguments is required.
-- `titleSlug` is the slug of the leetcode question that is in the url of the question, and
-- `qid` is the number associated with the question.
+* <code>leetscrape <i><b>list</b></i> [--out OUT]</code> - List all questions without generating code stub.
 
-### Other classes
+    ```
+    options:
+    -h, --help         show a help message and exit
+    --out OUT, -o OUT  Specify the output file name to store the list of questions.
+    ```
+* <code>leetscrape <i><b>question</b></i> [--out OUT] qid [qid ...]</code> - Generate a code stub for the given question(s).
 
-Import the relevant classes from the package:
+    ```
+    positional arguments:
+    qid                Enter Leetcode question ID(s)
+
+    options:
+    -h, --help         show this help message and exit
+    --out OUT, -o OUT  Enter the path to the output directory
+    ```
+* <code>leetscrape <i><b>solution</b></i> [-h] [--out OUT] input</code> - Generate mdx files from solutions.
+
+    ```
+    positional arguments:
+    input              Enter the path to the solution directory with solution files or to a single
+                        solution file
+
+    options:
+    -h, --help         show this help message and exit
+    --out OUT, -o OUT  Enter the path to the output directory to save solutions mdx files
+    ```
+* <code>leetscrape <i><b>ts</b></i> [--out OUT]</code> - Create the leetscrape-ts Next.js project to host the solutions.
+
+    ```
+    options:
+    -h, --help         show this help message and exit
+    --out OUT, -o OUT  Enter the path to the output directory to save the project
+    ```
+
+#### Python API
+
+##### Get the list of problems and their information
 
 ```python
-from leetscrape.GetQuestionsList import GetQuestionsList
-from leetscrape.GetQuestionInfo import GetQuestionInfo
-from leetscrape.utils import combine_list_and_info, get_all_questions_body
-```
+from leetscrape import GetQuestionsList
 
-### Scrape the list of problems
-Get the list of questions, companies, topic tags, categories using the [`GetQuestionsList`](/GetQuestionsList/#getquestionslist) class:
-
-```python
 ls = GetQuestionsList()
 ls.scrape() # Scrape the list of questions
-ls.to_csv(directory_path="../data/") # Save the scraped tables to a directory
+ls.questions.head() # Get the list of questions
 ```
 
-### Get Question statement and other information
-Query individual question's information such as the body, test cases, constraints, hints, code stubs, and company tags using the [`GetQuestionInfo`](/GetQuestionsList/#getquestionslist) class:
+|    |   QID | title                                          | titleSlug                                      | difficulty   |   acceptanceRate | paidOnly   | topicTags                              | categorySlug   |
+|---:|------:|:-----------------------------------------------|:-----------------------------------------------|:-------------|-----------------:|:-----------|:---------------------------------------|:---------------|
+|  0 |     1 | Two Sum                                        | two-sum                                        | Easy         |          51.4225 | False      | array,hash-table                       | algorithms     |
+|  1 |     2 | Add Two Numbers                                | add-two-numbers                                | Medium       |          41.9051 | False      | linked-list,math,recursion             | algorithms     |
+|  2 |     3 | Longest Substring Without Repeating Characters | longest-substring-without-repeating-characters | Medium       |          34.3169 | False      | hash-table,string,sliding-window       | algorithms     |
+|  3 |     4 | Median of Two Sorted Arrays                    | median-of-two-sorted-arrays                    | Hard         |          38.8566 | False      | array,binary-search,divide-and-conquer | algorithms     |
+|  4 |     5 | Longest Palindromic Substring                  | longest-palindromic-substring                  | Medium       |          33.4383 | False      | string,dynamic-programming             | algorithms     |
+
+You can export the associated tables to a directory using the `to_csv` method:
 
 ```python
-# This table can be generated using the previous commnd
-questions_info = pd.read_csv("../data/questions.csv")
-
-# Scrape question body
-questions_body_list = get_all_questions_body(
-    questions_info["titleSlug"].tolist(),
-    questions_info["paidOnly"].tolist(),
-    save_to="../data/questionBody.pickle",
-)
-
-# Save to a pandas dataframe
-questions_body = pd.DataFrame(
-    questions_body_list
-).drop(columns=["titleSlug"])
-questions_body["QID"] = questions_body["QID"].astype(int)
+ls.to_csv(directory="<dir>")
 ```
+This generates 6 `.csv` files in the current directory:
+- `questions.csv` - List of questions with their title, difficulty, acceptance rate, paid status, topic tags, and category.
+- `companies.csv` - List of companies with their name, slug, and the questions count.
+- `topicsTags.csv` - List of topic tags with their name and slug.
+- `categories.csv` - List of categories with their name and slug.
+- `questionCategory.csv` - An edgelist of questions and their categories.
+- `questionTopics.csv` - An edgelist of questions and their topic tags.
 
-> **Note**
-> The above code stub is time consuming (10+ minutes) since there are 2500+ questions.
+##### Get Question statement and other information
 
-Create a new dataframe with all the questions and their metadata and body information.
+Query individual question's information such as the body, test cases, constraints, hints, code stubs, and company tags using the `GetQuestion` class:
 
 ```python
-questions = combine_list_and_info(
-    info_df = questions_body, list_df=ls.questions, save_to="../data/all.json"
-)
+from leetscrape import GetQuestion
+
+# Get the question body
+question = GetQuestion(titleSlug="two-sum").scrape()
 ```
 
-### Upload scraped data to a Database
-Create a PostgreSQL database using the [SQL](https://github.com/nikhil-ravi/LeetScrape/blob/dcabdd8bd11b03aac0b725c0adc4881b9be9a48f/example/sql/create.sql) dump and insert data using `sqlalchemy`.
+This returns a `Question` object with the following attributes:
 
 ```python
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-engine = create_engine("<database_connection_string>", echo=True)
-questions.to_sql(con=engine, name="questions", if_exists="append", index=False)
-# Repeat the same for tables ls.topicTags, ls.categories,
-# ls.companies, # ls.questionTopics, and ls.questionCategory
+question.QID # Question ID
+question.title # Question title
+question.titleSlug # Question title slug
+question.difficulty # Question difficulty
+question.Hints # Question hints
+question.Companies # Question companies
+question.topics # Question topic tags
+question.SimilarQuestions # Similar questions ids
+question.Code # Code stubs
+question.Body # Question body / problem statement
+question.isPaidOnly # Whether the question is only available to premium users of Leetcode
 ```
 
-Use the [`queried_questions_list`](https://github.com/nikhil-ravi/LeetScrape/blob/dcabdd8bd11b03aac0b725c0adc4881b9be9a48f/example/sql/create.sql#L228-L240) PostgreSQL function (defined in the SQL dump) to query for questions containy query terms:
-
-```sql
-select * from queried_questions_list('<query term>');
-```
-
-Use the [`all_questions_list`](https://github.com/nikhil-ravi/LeetScrape/blob/dcabdd8bd11b03aac0b725c0adc4881b9be9a48f/example/sql/create.sql#L243-L253) PostgreSQL function (defined in the SQL dump) to query for all the questions in the database:
-
-```sql
-select * from all_questions_list();
-```
-
-Use the [`get_similar_questions`](https://github.com/nikhil-ravi/LeetScrape/blob/dcabdd8bd11b03aac0b725c0adc4881b9be9a48f/example/sql/create.sql#L255-L270) PostgreSQL function (defined in the SQL dump) to query for all questions similar to a given question:
-
-```sql
-select * from get_similar_questions(<QuestionID>);
-```
-
-
-### Extract solutions from a `.py` file
-
-You may want to extract solutions from a `.py` files to upload them to a database. You can do so using the [`ExtractSolutions`](/src/leetscrape/ExtractSolutions.py) class.
-```python
-from leetscrape.ExtractSolutions import extract
-# Returns a dict of the form {QuestionID: solutions}
-solutions = extract(filename=<path_to_python_script>)
-```
-
-Use the [`upload_solutions`](/utils/#leetscrape.utils.upload_solutions) method to upload the extracted solution code stubs from your python script to the PosgreSQL database.
+##### Generate code stubs for a question
 
 ```python
-from leetscrape.ExtractSolutions import upload_solutions
-upload_solutions(engine=<sqlalchemy_engine>, row_id = <row_id_in_table>, solutions: <solutions_dict>)
+from leetscrape import GenerateCodeStub
+
+# Get the question body
+fcs = GenerateCodeStub(titleSlug="two-sum")
+fcs.generate(directory="<dir>")
+```
+This generates the following files in the given directory:
+- `q_0001_twoSum.py` - Python file with the code stub for the given question with a function named `twoSum`.
+- `test_q_0001_twoSum.py` - Python file with the test cases for the given question.
+
+See [examples](./example/solutions/) for examples of the generated code stubs.
+
+##### Generate mdx files from solutions
+
+Once you have solved a question, you can generate an mdx file with the solution and the question statement using the `ExtractSolutions` class:
+
+```python
+from leetscrape import ExtractSolutions
+
+# Get the question body
+solutions = ExtractSolutions(filename="<path-to-solution-file>").extract()
+```
+This outputs a list of `Solution` objects with the following attributes:
+
+```python
+solution.id # Solution ID
+solution.code # Solution code
+solution.docs # Docstrings associated with the solution
+solution.problem_statement # Question body / problem statement
+```
+
+Alternatively, you can use the `to_mdx` method to generate the mdx file:
+
+```python
+from leetscrape import ExtractSolutions
+
+# Get the question body
+ExtractSolutions(filename="<path-to-solution-file>").to_mdx(output_filename="<path-to-output-file>")
+```
+
+### Serving the solutions with [leetscrape-ts](https://github.com/nikhil-ravi/leetscrape-ts)
+
+You can use the [leetscrape-ts](https://github.com/nikhil-ravi/leetscrape-ts) Next.js template to serve the solutions. See the [demo](https://scuffedcode.chowkabhara.com/). Visit the repo for more details. You can generate the project using the `leetscrape ts` command:
+
+```bash
+leetscrape ts --out <path-to-output-directory>
+```
+This will bootstrap the project in the given directory. Follow the instructions in the [README](https://github.com/nikhil-ravi/leetscrape-ts/blob/main/README.md) and create/modify the `.env.local` file. Then, run the following command to generate the mdx files:
+
+```bash
+leetscrape solution --out <path-to-output-directory>/src/content/solutions <path-to-your-python-solution-directory>
+```
+
+You can then run the project using the following command:
+
+```bash
+cd <path-to-output-directory>
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```

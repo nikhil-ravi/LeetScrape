@@ -80,3 +80,6 @@ TOPIC_TAGS = [
     {"slug": "rejection-sampling", "name": "Rejection Sampling"},
     {"slug": "biconnected-component", "name": "Biconnected Component"},
 ]
+
+NO_PYTHON_STUB = "# This question has no Python code stub.\n# Generating a generic Python code stub\nclass Solution:\n    def {}(self) -> Any:\n      "
+PREMIUM_CUSTOMER_PYTHON_STUB = "# This questions is only for paid Leetcode subscribers.\n# Generating a generic Python code stub\nclass Solution:\n    def {}(self) -> Any:\n      "
