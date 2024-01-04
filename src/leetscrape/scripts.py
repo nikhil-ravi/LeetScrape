@@ -14,18 +14,10 @@ def leetscrape_list(args, parser):
 def leetscrape_question(args, parser):
     from . import GenerateCodeStub
 
-    if not (args.qid or args.titleSlug):
-        parser.error("One of qid or titleSlug need to be specified.")
-    if args.qid and args.titleSlug:
-        parser.error("Only one of qid or titleSlug can be specified.")
-    if args.qid:
-        for qid in args.qid:
-            fcs = GenerateCodeStub(qid=qid)
-            fcs.generate(
-                directory=args.out if args.out else ".",
-            )
-    else:
-        fcs = GenerateCodeStub(titleSlug=args.titleSlug)
+    if not args.qid:
+        parser.error("Question ID(s) need to be specified.")
+    for qid in args.qid:
+        fcs = GenerateCodeStub(qid=qid)
         fcs.generate(
             directory=args.out if args.out else ".",
         )
@@ -114,21 +106,11 @@ def leetscrape():
         description="Generate a code stub for the given question",
     )
     parser_question.add_argument(
-        "--qid",
-        "-q",
+        "qid",
         # metavar="Question ID",
         nargs="+",
         type=int,
         help="Enter a Leetcode question ID",
-        required=False,
-    )
-    parser_question.add_argument(
-        "--titleSlug",
-        "-t",
-        # metavar="Title Slug",
-        type=str,
-        help="Enter a Leetcode question's title slug",
-        required=False,
     )
     parser_question.add_argument(
         "--out",
@@ -147,12 +129,10 @@ def leetscrape():
         description="Generate mdx files for solutions",
     )
     parser_solution.add_argument(
-        "--input",
-        "-i",
+        "input",
         # metavar="Solution directory",
         type=str,
         help="Enter the path to the solution directory with solution files or to a single solution file",
-        required=False,
     )
     parser_solution.add_argument(
         "--out",
