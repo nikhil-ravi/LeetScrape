@@ -83,3 +83,7 @@ TOPIC_TAGS = [
 
 NO_PYTHON_STUB = "# This question has no Python code stub.\n# Generating a generic Python code stub\nclass Solution:\n    def {}(self) -> Any:\n      "
 PREMIUM_CUSTOMER_PYTHON_STUB = "# This questions is only for paid Leetcode subscribers.\n# Generating a generic Python code stub\nclass Solution:\n    def {}(self) -> Any:\n      "
+
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36"
+}

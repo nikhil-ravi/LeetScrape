@@ -5,7 +5,7 @@ import warnings
 import pandas as pd
 import requests
 
-from ._constants import NO_PYTHON_STUB, PREMIUM_CUSTOMER_PYTHON_STUB
+from ._constants import HEADERS, NO_PYTHON_STUB, PREMIUM_CUSTOMER_PYTHON_STUB
 from ._helper import camel_case
 from .models import Question
 
@@ -27,7 +27,9 @@ class GetQuestion:
 
     @staticmethod
     def fetch_all_questions_id_and_stub():
-        req = requests.get("https://leetcode.com/api/problems/all/").json()
+        req = requests.get(
+            "https://leetcode.com/api/problems/all/", headers=HEADERS
+        ).json()
         question_data = pd.json_normalize(req["stat_status_pairs"]).rename(
             columns={
                 "stat.frontend_question_id": "QID",
