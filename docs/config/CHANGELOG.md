@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.2] - 2024-04-16
+
+### Changed
+- Added requests header to prevent 403 error when scraping questions.
+- Fixed a typo in the example notebook.
+
 
 ## [1.0.1] - 2024-01-04
 
