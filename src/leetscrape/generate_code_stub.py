@@ -20,9 +20,9 @@ class GenerateCodeStub:
     """
 
     def __init__(
-        self,
-        titleSlug: str | None = None,
-        qid: int | None = None,
+            self,
+            titleSlug: str | None = None,
+            qid: int | None = None,
     ):
         self.all_questions_stub_id = (
             GetQuestion.fetch_all_questions_id_and_stub().reset_index().set_index("QID")
@@ -42,8 +42,8 @@ class GenerateCodeStub:
             if self.titleSlug in self.all_questions_stub_id.titleSlug.tolist():
                 if self.qid is not None:
                     if (
-                        self.titleSlug
-                        != self.all_questions_stub_id.loc[self.qid].titleSlug
+                            self.titleSlug
+                            != self.all_questions_stub_id.loc[self.qid].titleSlug
                     ):
                         raise ValueError(
                             f"Both titleSlug and qid were passed but they do not match.\n"
@@ -52,7 +52,7 @@ class GenerateCodeStub:
                 else:
                     self.qid = self.all_questions_stub_id[
                         self.all_questions_stub_id["titleSlug"] == self.titleSlug
-                    ].index[0]
+                        ].index[0]
             else:
                 raise ValueError("There is no question with the passed titleSlug.")
         print(f"Generating code stub for {self.qid}. {self.titleSlug}")
@@ -79,7 +79,7 @@ class GenerateCodeStub:
 
             if not self.data.isPaidOnly:
                 with open(
-                    f"{directory}/test_{self.filename}", "w", encoding="utf-8"
+                        f"{directory}/test_{self.filename}", "w", encoding="utf-8"
                 ) as f:
                     f.write(
                         format_str(test_to_write, mode=FileMode())
@@ -142,7 +142,7 @@ class GenerateCodeStub:
         return text_to_write
 
     def _extract_codeblocks_in_problem_statement(
-        self, problem_statement: str
+            self, problem_statement: str
     ) -> list[str]:
         """Extract the code blocks from the given problem statement string. These codeblocks contain the basic test cases provided by Leetcode.
 
@@ -193,7 +193,13 @@ class GenerateCodeStub:
                         .replace("\n", "")
                     )["Output"]
                 parameters.append(parameter_dict)
-        output_string = ", ".join(list(parameters[0].keys()))
+
+        # Some questions do not have any code stub, just add error handling code to deal with this
+        try:
+            output_string = ", ".join(list(parameters[0].keys()))
+        except IndexError:
+            output_string = ""
+
         input_string = ", ".join(
             f"({test_case})"
             for test_case in [

@@ -1,4 +1,6 @@
 import json
+from json import JSONDecodeError
+import os
 import time
 import warnings
 
@@ -11,6 +13,14 @@ from .models import Question
 
 # Leetcode's graphql api endpoint
 BASE_URL = "https://leetcode.com/graphql"
+
+# JSON response file from https://leetcode.com/api/problems/all/
+# Get the directory of the current script
+script_dir = os.path.dirname(__file__)
+
+# Construct the full path to the JSON file
+json_file_path = os.path.join(script_dir, './response.json')
+
 
 
 class GetQuestion:
@@ -27,9 +37,15 @@ class GetQuestion:
 
     @staticmethod
     def fetch_all_questions_id_and_stub():
-        req = requests.get(
-            "https://leetcode.com/api/problems/all/", headers=HEADERS
-        ).json()
+
+        try:
+            req = requests.get(
+                "https://leetcode.com/api/problems/all/", headers=HEADERS
+            ).json()
+        except JSONDecodeError:  # Use locally-saved json for now to handle error
+            with open(json_file_path, "r") as file:
+                req = json.load(file)
+
         question_data = pd.json_normalize(req["stat_status_pairs"]).rename(
             columns={
                 "stat.frontend_question_id": "QID",
