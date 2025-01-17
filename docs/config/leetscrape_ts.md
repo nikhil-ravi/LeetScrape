@@ -1,6 +1,6 @@
 # LeetScrape TS
 
-You can use the [leetscrape-ts](https://github.com/nikhil-ravi/leetscrape-ts) Next.js template to serve your solutions on the web. See the [demo](https://scuffedcode.chowkabhara.com/). Visit the repo for more details. You can generate the project using the `leetscrape ts` command:
+You can use the [leetscrape-ts](https://github.com/nikhil-ravi/leetscrape-ts) Next.js template to serve your solutions on the web. See the [demo](https://scuffedcode.nikhilravi.com/). Visit the repo for more details. You can generate the project using the `leetscrape ts` command:
 
 ```bash
 leetscrape ts --out ./ts
