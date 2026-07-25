@@ -159,8 +159,13 @@ class GenerateCodeStub:
             for child in markdown_text.children
             if isinstance(child, marko.block.FencedCode)
         ]
-        if code_blocks:
-            return code_blocks
+        # Keep only blocks that look like test cases. Fenced blocks without an
+        # "Input:" line (e.g. the explanation diagrams in string-to-integer-atoi)
+        # are not test cases; this mirrors the filter _get_parameters already
+        # applies, and ensures the fallback below triggers correctly.
+        test_blocks = [b for b in code_blocks if "Input" in b]
+        if test_blocks:
+            return test_blocks
         # Fallback: some questions (e.g. valid-parentheses) render their examples
         # as plain "Input:"/"Output:" lines instead of wrapping them in fenced
         # code blocks. Group each Input..Output pair into a synthetic block so
