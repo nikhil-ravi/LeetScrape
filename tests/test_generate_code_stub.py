@@ -45,3 +45,8 @@ class TestGenerateCodeStubIllegalTitleSlug:
     def test_generate_neither_qid_titleSlug_passed(self):
         with pytest.raises(ValueError):
             GenerateCodeStub()
+
+
+class TestGenerateCodeStubPlainTextExamples:
+    def test_valid_parentheses(self):
+        GenerateCodeStub(titleSlug="valid-parentheses").generate(testing=True)
