@@ -45,3 +45,13 @@ class TestGenerateCodeStubIllegalTitleSlug:
     def test_generate_neither_qid_titleSlug_passed(self):
         with pytest.raises(ValueError):
             GenerateCodeStub()
+
+
+class TestGenerateCodeStubPlainTextExamples:
+    def test_valid_parentheses(self):
+        GenerateCodeStub(titleSlug="valid-parentheses").generate(testing=True)
+
+    def test_string_to_integer_atoi(self):
+        # Examples are plain Input:/Output: text alongside fenced explanation
+        # diagrams (none of the fenced blocks contain an Input line).
+        GenerateCodeStub(titleSlug="string-to-integer-atoi").generate(testing=True)
