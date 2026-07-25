@@ -159,7 +159,18 @@ class GenerateCodeStub:
             for child in markdown_text.children
             if isinstance(child, marko.block.FencedCode)
         ]
-        return code_blocks
+        if code_blocks:
+            return code_blocks
+        # Fallback: some questions (e.g. valid-parentheses) render their examples
+        # as plain "Input:"/"Output:" lines instead of wrapping them in fenced
+        # code blocks. Group each Input..Output pair into a synthetic block so
+        # _get_parameters can parse it with the same logic.
+        pairs = re.findall(
+            r"(Input:.*?\nOutput:.*?)(?=\n\n|\Z)",
+            problem_statement,
+            re.DOTALL,
+        )
+        return [pair.strip() + "\n" for pair in pairs]
 
     def _get_parameters(self, code_blocks: list[str]) -> tuple[str, str]:
         """Extract the inputs and outputs from each of the code block in the question body.
@@ -193,6 +204,10 @@ class GenerateCodeStub:
                         .replace("\n", "")
                     )["Output"]
                 parameters.append(parameter_dict)
+        if not parameters:
+            raise ValueError(
+                "No test cases could be extracted from the problem statement."
+            )
         output_string = ", ".join(list(parameters[0].keys()))
         input_string = ", ".join(
             f"({test_case})"
