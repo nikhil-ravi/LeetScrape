@@ -198,4 +198,4 @@ bun dev
 
 ## Changelog
 
-View the changelog [here](https://leetscrape.nikhilravi.com/CHANGELOG/).
+View the changelog [here](https://github.com/nikhil-ravi/LeetScrape/blob/main/docs/config/CHANGELOG.md).
